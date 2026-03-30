@@ -1,0 +1,55 @@
+Labels:
+  AllProjects: All
+  Application: Application
+  AttachDocument: Attach document
+  CMS: CMS
+  CMSDownload: CMSDownload
+  CMSPlaceHolderErrorMessage: Invalid placeholder syntax.
+  CMSSaved: Saved application <br /> CMS to Engine
+  CMSWarningTextForDownload: If you want to apply persistent changes to the CMS, you need to download the ZIP file and deploy it on the engine.
+  CMSWarningTextForSave: Save makes these changes immediately visible in the application
+  Cancel: Cancel
+  ChangeDocument: Change document
+  ChangesSaved: Changes saved
+  CmsDownloaded: Project CMS saved <br /> to ZIP file
+  CmsInformation: CMS Information
+  Download: Download for deployment
+  Edit: Edit
+  EditCmsInformation: Edit CMS Information
+  EmptyContent: The content is empty. Click here to edit it.
+  Error: Error
+  FileCannotBeTranslated: This CMS can't be translated since it is file type
+  InvalidFileSizeMessage: The file size must not be larger than {0} MB.
+  InvalidFileTypeMessage: The file type is invalid.
+  LocaleNotAvailable: This locale is not available in the selected project
+  Message: Message
+  Options: Options
+  Path: Path
+  Paths: Paths
+  Preview: Preview
+  ProjectCmsTitle: Project-CMS
+  ResetAdvice: Enter <b>reset</b> to confirm
+  ResetAll: Reset all
+  ResetAllChangeConfirmation: Are you sure you want to reset all changes?
+  ResetAllChanges: Reset all changes
+  Save: Save
+  Search: Search for paths or CMS content
+  Select: Select
+  SelectedCMS: Selected CMS
+  Settings: Settings
+  ShowOnlyTODO: Show only TODO
+  SomeFieldsHaveNotBeenSaved: Some fields have not been saved yet
+  Source: source
+  SourceLanguage: Source language
+  Target: target
+  TargetLanguage: Target language
+  Translate: Translate
+  TranslateMultiple: Translate multiple entries
+  TranslationWizard: Translation wizard
+  Translations: Translations
+  UndoChanges: Undo changes
+  Warning: Warning
+Processes:
+  CMSLiveEditor:
+    description: Use this process to translate the current CMS and export it to an Excel file.
+    name: CMS Live Editor
