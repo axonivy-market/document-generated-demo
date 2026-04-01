@@ -58,8 +58,12 @@ jobs:
           
           echo "Invoking Copilot with skill..."
           
-          # Use copilot with --prompt flag for non-interactive mode
-          timeout 600 copilot --prompt "$(cat /tmp/readme-prompt.txt)" > /tmp/copilot-output.txt 2>&1 || {
+          # Run copilot programmatically (non-interactive mode)
+          # -p: prompt flag
+          # --allow-tool='write': allow Copilot to write files
+          # --allow-tool='shell(git:*)': allow git commands for context
+          # --no-ask-user: no prompting (needed for automation)
+          timeout 600 copilot -p "$(cat /tmp/readme-prompt.txt)" --allow-tool='write' --allow-tool='shell(git:*)' --no-ask-user > /tmp/copilot-output.txt 2>&1 || {
             EXIT_CODE=$?
             if [ $EXIT_CODE -eq 124 ]; then
               echo "⚠ Timeout after 600 seconds"
