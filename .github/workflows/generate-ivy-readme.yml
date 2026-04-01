@@ -35,6 +35,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
       - name: Generate README
         run: |
           set -euo pipefail
