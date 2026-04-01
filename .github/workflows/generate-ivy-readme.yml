@@ -35,107 +35,54 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Copilot CLI (official)
-        run: |
-          set -euo pipefail
-          if command -v copilot >/dev/null 2>&1; then
-            echo "copilot CLI already installed"
-            exit 0
-          fi
-
-          echo "Installing Copilot CLI using the official install script..."
-          # Official install script (installs to $HOME/.local by default)
-          if curl -fsSL https://gh.io/copilot-install | bash; then
-            echo "copilot install script completed"
-          else
-            echo "copilot install script failed or unavailable"
-          fi
-
-          # Ensure local bin is on PATH
-          export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
-
-          if command -v copilot >/dev/null 2>&1; then
-            echo "copilot is now available"
-            exit 0
-          fi
-
-          echo "Attempting npm fallback (requires Node.js >= 22)..."
-          if command -v npm >/dev/null 2>&1; then
-            if npm install -g @github/copilot; then
-              echo "installed copilot via npm"
-            else
-              echo "npm install fallback failed"
-            fi
-          else
-            echo "npm not available for fallback"
-          fi
-
-          if command -v copilot >/dev/null 2>&1; then
-            echo "copilot available after fallback"
-            exit 0
-          fi
-
-          echo "copilot CLI not found. Provide binary on PATH or run this workflow on a runner with Copilot preinstalled."
-          exit 1
-
       - name: Generate README
         run: |
           set -euo pipefail
           
-          echo "=== Generating README using Copilot Agent ==="
+          echo "=== Generating README using GitHub Copilot ==="
           
-          # Use Copilot to generate README by invoking the skill via prompt
-          # Skills in Copilot are auto-discovered and referenced with /skillname in prompts
-          
-          if ! command -v copilot >/dev/null 2>&1; then
-            echo "Error: copilot CLI not found; installation step should have installed it."
+          if ! command -v gh >/dev/null 2>&1; then
+            echo "Error: GitHub CLI not found"
             exit 1
           fi
           
-          # Create a prompt file that references the skill
-          cat > /tmp/copilot-readme-prompt.txt << 'EOF'
-          Use the /generate-ivy-readme skill to generate a comprehensive README.md for this Axon Ivy project.
+          echo "GitHub CLI: $(gh --version)"
           
-          The skill should:
-          1. Analyze the project structure in the current workspace
-          2. Extract key features and documentation from the main module
-          3. Create well-structured README sections (Title, Description, Demo, Setup)
-          4. Write the generated README to README.md in the repository root
+          # Create prompt file
+          cat > /tmp/readme-prompt.txt << 'PROMPT_EOF'
+          Use the /generate-ivy-readme skill to generate a README.md for this Axon Ivy project.
+          PROMPT_EOF
           
-          Workspace path: ./
-          EOF
+          echo "Invoking GitHub Copilot..."
           
-          echo "Prompt:"
-          cat /tmp/copilot-readme-prompt.txt
-          echo ""
-          echo "Invoking Copilot agent with /generate-ivy-readme skill..."
-          
-          # Execute copilot with the prompt (non-interactive mode for CI/CD)
-          copilot < /tmp/copilot-readme-prompt.txt > /tmp/copilot-output.txt 2>&1 || {
-            echo "⚠ Copilot agent execution returned non-zero exit code"
-            echo "Output:"
-            cat /tmp/copilot-output.txt
+          # Use gh copilot with prompt
+          timeout 600 gh copilot explain "$(cat /tmp/readme-prompt.txt)" > /tmp/copilot-output.txt 2>&1 || {
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -eq 124 ]; then
+              echo "⚠ Timeout after 600 seconds"
+            else
+              echo "⚠ Exit code: $EXIT_CODE"
+            fi
           }
           
-          # Show the copilot output
           echo ""
-          echo "=== Copilot Agent Output ==="
-          cat /tmp/copilot-output.txt || true
+          echo "=== Output ==="
+          cat /tmp/copilot-output.txt
           
-          # Verify README.md was created
-          echo ""
-          if [ -f README.md ]; then
-            echo "✓ README.md generated successfully"
-            echo "File size: $(wc -c < README.md) bytes"
-            head -20 README.md
+          # Save output as README if it's markdown
+          if [ -s /tmp/copilot-output.txt ] && grep -q "^#" /tmp/copilot-output.txt; then
+            cp /tmp/copilot-output.txt README.md
+            echo ""
+            echo "✓ README.md created"
+          elif [ -f README.md ]; then
+            echo "✓ README.md exists"
           else
-            echo "⚠ README.md not found after agent execution"
-            echo "Listing current directory contents:"
+            echo "✗ README.md not created"
             ls -la
             exit 1
           fi
         env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_FINE_GRAINED_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.COPILOT_FINE_GRAINED_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
