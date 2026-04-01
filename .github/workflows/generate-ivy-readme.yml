@@ -31,12 +31,12 @@ jobs:
           git rev-parse --abbrev-ref HEAD
         shell: bash
 
-      - name: Setup Node.js (for copilot CLI install)
+      - name: Setup Node.js (for npm fallback)
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
-      - name: Install Copilot CLI
+      - name: Install Copilot CLI (official)
         run: |
           set -euo pipefail
           if command -v copilot >/dev/null 2>&1; then
@@ -44,37 +44,39 @@ jobs:
             exit 0
           fi
 
-          echo "Attempting to install Copilot CLI via gh extension (github/copilot-cli)..."
-
-          # Ensure gh CLI is available
-          if ! command -v gh >/dev/null 2>&1; then
-            echo "gh CLI not found. Installing gh..."
-            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-            sudo apt-get update
-            sudo apt-get install -y gh
+          echo "Installing Copilot CLI using the official install script..."
+          # Official install script (installs to $HOME/.local by default)
+          if curl -fsSL https://gh.io/copilot-install | bash; then
+            echo "copilot install script completed"
           else
-            echo "gh CLI already installed"
+            echo "copilot install script failed or unavailable"
           fi
 
-          # Try installing the copilot CLI as a gh extension
-          if gh extension install github/copilot-cli --yes; then
-            echo "gh extension install succeeded"
-          else
-            echo "gh extension install failed or extension not available"
-          fi
-
-          # Add common extension/bin locations to PATH and check for copilot
-          export PATH="$HOME/.local/bin:$PATH"
+          # Ensure local bin is on PATH
+          export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
 
           if command -v copilot >/dev/null 2>&1; then
-            echo "copilot installed"
+            echo "copilot is now available"
             exit 0
           fi
 
-          echo "copilot CLI not found after attempting gh extension install."
-          echo "Please provide a copilot binary on PATH, install on a self-hosted runner, or update this step with your organization's install method."
+          echo "Attempting npm fallback (requires Node.js >= 22)..."
+          if command -v npm >/dev/null 2>&1; then
+            if npm install -g @github/copilot; then
+              echo "installed copilot via npm"
+            else
+              echo "npm install fallback failed"
+            fi
+          else
+            echo "npm not available for fallback"
+          fi
+
+          if command -v copilot >/dev/null 2>&1; then
+            echo "copilot available after fallback"
+            exit 0
+          fi
+
+          echo "copilot CLI not found. Provide binary on PATH or run this workflow on a runner with Copilot preinstalled."
           exit 1
 
       - name: Generate README
