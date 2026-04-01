@@ -44,47 +44,38 @@ jobs:
             exit 0
           fi
 
-          echo "Attempting to download Copilot CLI from GitHub releases..."
-          REPO="github/copilot-cli"
-          API_URL="https://api.github.com/repos/${REPO}/releases/latest"
+          echo "Attempting to install Copilot CLI via gh extension (github/copilot-cli)..."
 
-          # Try to find a linux amd64 asset URL
-          ASSET_URL=$(curl -sS "$API_URL" | grep 'browser_download_url' | grep -i 'linux' | grep -E 'amd64|x86_64' | head -n1 | cut -d '"' -f4 || true)
-
-          if [ -n "$ASSET_URL" ]; then
-            echo "Found asset: $ASSET_URL"
-            mkdir -p /tmp/copilot_install
-            curl -sSL "$ASSET_URL" -o /tmp/copilot_install/copilot_asset
-
-            # Try to extract tar.gz or zip
-            if file /tmp/copilot_install/copilot_asset | grep -q 'gzip compressed'; then
-              tar -xzf /tmp/copilot_install/copilot_asset -C /tmp/copilot_install
-            elif file /tmp/copilot_install/copilot_asset | grep -q 'Zip archive data'; then
-              unzip -qq /tmp/copilot_install/copilot_asset -d /tmp/copilot_install
-            fi
-
-            EXE=$(find /tmp/copilot_install -type f -iname 'copilot*' -perm -u+x | head -n1 || true)
-            if [ -z "$EXE" ]; then
-              EXE=$(find /tmp/copilot_install -type f -iname 'copilot*' | head -n1 || true)
-            fi
-
-            if [ -n "$EXE" ]; then
-              sudo mv "$EXE" /usr/local/bin/copilot
-              sudo chmod +x /usr/local/bin/copilot
-              echo "copilot installed to /usr/local/bin/copilot"
-            else
-              echo "No copilot executable found in release asset"
-              exit 1
-            fi
+          # Ensure gh CLI is available
+          if ! command -v gh >/dev/null 2>&1; then
+            echo "gh CLI not found. Installing gh..."
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install -y gh
           else
-            echo "No suitable release asset found. Attempting npm install as fallback..."
-            if npm install -g @githubnext/copilot-cli; then
-              echo "copilot installed via npm"
-            else
-              echo "copilot not available via npm. Please provide copilot binary on PATH or update this step."
-              exit 1
-            fi
+            echo "gh CLI already installed"
           fi
+
+          # Try installing the copilot CLI as a gh extension
+          if gh extension install github/copilot-cli --yes; then
+            echo "gh extension install succeeded"
+          else
+            echo "gh extension install failed or extension not available"
+          fi
+
+          # Add common extension/bin locations to PATH and check for copilot
+          export PATH="$HOME/.local/bin:$PATH"
+
+          if command -v copilot >/dev/null 2>&1; then
+            echo "copilot installed"
+            exit 0
+          fi
+
+          echo "copilot CLI not found after attempting gh extension install."
+          echo "Please provide a copilot binary on PATH, install on a self-hosted runner, or update this step with your organization's install method."
+          exit 1
 
       - name: Generate README
         run: |
