@@ -38,12 +38,52 @@ jobs:
 
       - name: Install Copilot CLI
         run: |
-          set -e
-          if ! command -v copilot >/dev/null 2>&1; then
-            echo "Installing Copilot CLI..."
-            npm install -g @githubnext/copilot-cli
-          else
+          set -euo pipefail
+          if command -v copilot >/dev/null 2>&1; then
             echo "copilot CLI already installed"
+            exit 0
+          fi
+
+          echo "Attempting to download Copilot CLI from GitHub releases..."
+          REPO="github/copilot-cli"
+          API_URL="https://api.github.com/repos/${REPO}/releases/latest"
+
+          # Try to find a linux amd64 asset URL
+          ASSET_URL=$(curl -sS "$API_URL" | grep 'browser_download_url' | grep -i 'linux' | grep -E 'amd64|x86_64' | head -n1 | cut -d '"' -f4 || true)
+
+          if [ -n "$ASSET_URL" ]; then
+            echo "Found asset: $ASSET_URL"
+            mkdir -p /tmp/copilot_install
+            curl -sSL "$ASSET_URL" -o /tmp/copilot_install/copilot_asset
+
+            # Try to extract tar.gz or zip
+            if file /tmp/copilot_install/copilot_asset | grep -q 'gzip compressed'; then
+              tar -xzf /tmp/copilot_install/copilot_asset -C /tmp/copilot_install
+            elif file /tmp/copilot_install/copilot_asset | grep -q 'Zip archive data'; then
+              unzip -qq /tmp/copilot_install/copilot_asset -d /tmp/copilot_install
+            fi
+
+            EXE=$(find /tmp/copilot_install -type f -iname 'copilot*' -perm -u+x | head -n1 || true)
+            if [ -z "$EXE" ]; then
+              EXE=$(find /tmp/copilot_install -type f -iname 'copilot*' | head -n1 || true)
+            fi
+
+            if [ -n "$EXE" ]; then
+              sudo mv "$EXE" /usr/local/bin/copilot
+              sudo chmod +x /usr/local/bin/copilot
+              echo "copilot installed to /usr/local/bin/copilot"
+            else
+              echo "No copilot executable found in release asset"
+              exit 1
+            fi
+          else
+            echo "No suitable release asset found. Attempting npm install as fallback..."
+            if npm install -g @githubnext/copilot-cli; then
+              echo "copilot installed via npm"
+            else
+              echo "copilot not available via npm. Please provide copilot binary on PATH or update this step."
+              exit 1
+            fi
           fi
 
       - name: Generate README
