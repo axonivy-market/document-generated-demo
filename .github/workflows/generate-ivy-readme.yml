@@ -53,10 +53,10 @@ jobs:
           Use the /generate-ivy-readme skill to generate a README.md for this Axon Ivy project.
           PROMPT_EOF
           
-          echo "Invoking GitHub Copilot..."
+          echo "Invoking Copilot with skill..."
           
-          # Use gh copilot with prompt
-          timeout 600 gh copilot explain "$(cat /tmp/readme-prompt.txt)" > /tmp/copilot-output.txt 2>&1 || {
+          # Use copilot with --prompt flag for non-interactive mode
+          timeout 600 copilot --prompt "$(cat /tmp/readme-prompt.txt)" > /tmp/copilot-output.txt 2>&1 || {
             EXIT_CODE=$?
             if [ $EXIT_CODE -eq 124 ]; then
               echo "⚠ Timeout after 600 seconds"
