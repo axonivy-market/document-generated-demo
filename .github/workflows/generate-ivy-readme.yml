@@ -82,13 +82,57 @@ jobs:
       - name: Generate README
         run: |
           set -euo pipefail
-          SKILL=".github/skills/generate-ivy-readme"
-          echo "Generating README using skill $SKILL"
-          if command -v copilot >/dev/null 2>&1; then
-            # The skill itself is expected to write README.md into the working directory.
-            copilot run --skill "$SKILL" --input '{"workspacePath":"."}' || true
+          
+          echo "=== Generating README using Copilot Agent ==="
+          
+          # Use Copilot to generate README by invoking the skill via prompt
+          # Skills in Copilot are auto-discovered and referenced with /skillname in prompts
+          
+          if ! command -v copilot >/dev/null 2>&1; then
+            echo "Error: copilot CLI not found; installation step should have installed it."
+            exit 1
+          fi
+          
+          # Create a prompt file that references the skill
+          cat > /tmp/copilot-readme-prompt.txt << 'EOF'
+          Use the /generate-ivy-readme skill to generate a comprehensive README.md for this Axon Ivy project.
+          
+          The skill should:
+          1. Analyze the project structure in the current workspace
+          2. Extract key features and documentation from the main module
+          3. Create well-structured README sections (Title, Description, Demo, Setup)
+          4. Write the generated README to README.md in the repository root
+          
+          Workspace path: ./
+          EOF
+          
+          echo "Prompt:"
+          cat /tmp/copilot-readme-prompt.txt
+          echo ""
+          echo "Invoking Copilot agent with /generate-ivy-readme skill..."
+          
+          # Execute copilot with the prompt (non-interactive mode for CI/CD)
+          copilot < /tmp/copilot-readme-prompt.txt > /tmp/copilot-output.txt 2>&1 || {
+            echo "⚠ Copilot agent execution returned non-zero exit code"
+            echo "Output:"
+            cat /tmp/copilot-output.txt
+          }
+          
+          # Show the copilot output
+          echo ""
+          echo "=== Copilot Agent Output ==="
+          cat /tmp/copilot-output.txt || true
+          
+          # Verify README.md was created
+          echo ""
+          if [ -f README.md ]; then
+            echo "✓ README.md generated successfully"
+            echo "File size: $(wc -c < README.md) bytes"
+            head -20 README.md
           else
-            echo "copilot CLI not found; installation step should have installed it."
+            echo "⚠ README.md not found after agent execution"
+            echo "Listing current directory contents:"
+            ls -la
             exit 1
           fi
         env:
