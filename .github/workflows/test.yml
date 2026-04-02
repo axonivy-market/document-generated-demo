@@ -10,70 +10,65 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout source
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. Java (required by Ivy)
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      # 1. Download Designer (as required)
-      - name: Download Ivy Designer
+      # 3. Download Axon Ivy Engine
+      - name: Download Ivy Engine
         run: |
           set -e
-          curl -L -o ivy-designer.zip \
+          curl -L -o ivy-engine.zip \
             https://download.axonivy.com/13.1.1/AxonIvyEngine13.1.1.2506271313_All_x64.zip
 
-          unzip ivy-designer.zip
+          unzip ivy-engine.zip
 
-      # 2. Locate Designer directory
-      - name: Locate Ivy Designer
+      # 4. Detect Engine directory (robust)
+      - name: Detect Engine Root
         run: |
-          echo "===== ROOT ====="
+          echo "===== ROOT CONTENT ====="
           ls -la
 
-          DESIGNER_DIR=$(find . -type d -name "AxonIvyDesigner*" | head -n 1)
-
-          if [ -z "$DESIGNER_DIR" ]; then
-            echo "❌ Designer directory not found"
-            exit 1
+          if [ -d "bin" ] && [ -f "bin/AxonIvyEngine" ]; then
+            ENGINE_DIR=$(pwd)
+          else
+            ENGINE_DIR=$(find . -type d -name "AxonIvyEngine*" | head -n 1)
           fi
 
-          echo "DESIGNER_DIR=$DESIGNER_DIR" >> $GITHUB_ENV
-          echo "Designer found at: $DESIGNER_DIR"
-
-      # 3. Locate embedded Engine inside Designer
-      - name: Locate Embedded Engine
-        run: |
-          ENGINE_DIR=$(find "$DESIGNER_DIR" -type d -name "AxonIvyEngine*" | head -n 1)
-
           if [ -z "$ENGINE_DIR" ]; then
-            echo "❌ Embedded Engine not found inside Designer"
+            echo "❌ Engine directory not found"
             exit 1
           fi
 
           echo "ENGINE_DIR=$ENGINE_DIR" >> $GITHUB_ENV
           echo "Engine found at: $ENGINE_DIR"
 
-      # 4. Validate binary
+      # 5. Validate binary
       - name: Validate Engine Binary
         run: |
           if [ ! -f "$ENGINE_DIR/bin/AxonIvyEngine" ]; then
             echo "❌ AxonIvyEngine binary not found"
-            find "$ENGINE_DIR" -maxdepth 2
+            find "$ENGINE_DIR"
             exit 1
           fi
 
-      # 5. Deploy project
+      # 6. Deploy ONLY your app module
       - name: Deploy Axon Ivy Project
         run: |
           set -e
           mkdir -p "$ENGINE_DIR/deploy/app"
-          cp -r . "$ENGINE_DIR/deploy/app"
 
-      # 6. Start Ivy Engine
+          # Adjust this to your actual module
+          cp -r ibm-db2-luw-connector "$ENGINE_DIR/deploy/app/"
+
+      # 7. Start Ivy Engine
       - name: Start Ivy Engine
         run: |
           set -e
@@ -85,7 +80,7 @@ jobs:
 
           echo "Waiting for Ivy Engine..."
 
-          for i in {1..60}; do
+          for i in {1..90}; do
             if curl -s http://localhost:8080 > /dev/null; then
               echo "✅ Ivy Engine is ready"
               exit 0
@@ -98,7 +93,15 @@ jobs:
           cat ../../ivy.log
           exit 1
 
-      # 7. Check UI
+      # 8. Basic UI check
       - name: Check UI
         run: |
+          echo "Checking HTTP response..."
           curl -I http://localhost:8080
+
+      # 9. (Optional) Print log for debugging
+      - name: Print Ivy Log (always)
+        if: always()
+        run: |
+          echo "===== IVY LOG ====="
+          cat ivy.log || true
