@@ -24,7 +24,7 @@ jobs:
         run: |
           set -e
           curl -L -o ivy-designer.zip \
-            https://download.axonivy.com/13.1.1/AxonIvyDesigner13.1.1.2506271313_Linux_x64.zip
+            https://download.axonivy.com/13.1.1/AxonIvyEngine13.1.1.2506271313_All_x64.zip
 
           unzip ivy-designer.zip
 
