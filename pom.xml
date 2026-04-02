@@ -7,11 +7,11 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>ibm-db2-luw</module>
-    <module>ibm-db2-luw-demo</module>
-    <module>ibm-db2-luw-test</module>
-    <module>ibm-db2-luw-product</module>
-  </modules>
+    <module>ibm-db2-luw-connector</module>
+    <module>ibm-db2-luw-connector-demo</module>
+    <module>ibm-db2-luw-connector-test</module>
+    <module>ibm-db2-luw-connector-product</module>
+</modules>
 
   <scm>
     <developerConnection>scm:git:https://github.com/axonivy-market/ibm-db2-luw.git</developerConnection>
