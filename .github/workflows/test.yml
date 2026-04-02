@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
       # 3. Build main + demo → generate .iar
       - name: Build Axon Ivy Artifacts (.iar)
