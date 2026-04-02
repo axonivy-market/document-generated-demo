@@ -121,15 +121,21 @@ jobs:
 
           LOG_FILE="$ENGINE_DIR/logs/ivy.log"
 
+          # ✅ Force Java 21
+          export JAVA_HOME="$JAVA_HOME_21_X64"
+          export PATH="$JAVA_HOME/bin:$PATH"
+
+          echo "===== JAVA INFO ====="
+          java -version
+          which java
+
           cd "$ENGINE_DIR/bin"
           chmod +x AxonIvyEngine
 
-          # Start engine (no need to redirect to custom ivy.log)
           ./AxonIvyEngine -startdaemon &
 
           echo "===== Streaming Ivy Log ====="
 
-          # Wait until log file exists (important)
           for i in {1..30}; do
             if [ -f "$LOG_FILE" ]; then
               break
@@ -142,7 +148,6 @@ jobs:
             exit 1
           fi
 
-          # Stream logs
           tail -f "$LOG_FILE" &
           TAIL_PID=$!
 
@@ -158,7 +163,6 @@ jobs:
           done
 
           echo "❌ Engine failed to start"
-
           kill $TAIL_PID || true
 
           echo "===== FINAL LOG ====="
