@@ -118,25 +118,52 @@ jobs:
       - name: Start Ivy Engine
         run: |
           set -e
-          cd "$ENGINE_DIR/bin"
 
+          LOG_FILE="$ENGINE_DIR/logs/ivy.log"
+
+          cd "$ENGINE_DIR/bin"
           chmod +x AxonIvyEngine
 
-          ./AxonIvyEngine -startdaemon > ../../ivy.log 2>&1 &
+          # Start engine (no need to redirect to custom ivy.log)
+          ./AxonIvyEngine -startdaemon &
+
+          echo "===== Streaming Ivy Log ====="
+
+          # Wait until log file exists (important)
+          for i in {1..30}; do
+            if [ -f "$LOG_FILE" ]; then
+              break
+            fi
+            sleep 1
+          done
+
+          if [ ! -f "$LOG_FILE" ]; then
+            echo "❌ Log file not created"
+            exit 1
+          fi
+
+          # Stream logs
+          tail -f "$LOG_FILE" &
+          TAIL_PID=$!
 
           echo "Waiting for Ivy Engine..."
 
           for i in {1..120}; do
             if curl -s http://localhost:8080 > /dev/null; then
               echo "✅ Ivy Engine is ready"
+              kill $TAIL_PID || true
               exit 0
             fi
             sleep 2
           done
 
           echo "❌ Engine failed to start"
-          echo "===== LOG ====="
-          cat ../../ivy.log
+
+          kill $TAIL_PID || true
+
+          echo "===== FINAL LOG ====="
+          cat "$LOG_FILE"
+
           exit 1
 
       # 10. Check UI
