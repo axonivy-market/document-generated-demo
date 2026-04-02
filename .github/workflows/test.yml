@@ -19,66 +19,86 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # 1. Download correct Ivy Engine (NOT Designer)
-      - name: Download Ivy Engine
+      # 1. Download Designer (as required)
+      - name: Download Ivy Designer
         run: |
-          curl -L -o ivy-engine.zip \
+          set -e
+          curl -L -o ivy-designer.zip \
             https://download.axonivy.com/13.1.1/AxonIvyDesigner13.1.1.2506271313_Linux_x64.zip
-          unzip ivy-engine.zip
 
-      # 2. Locate extracted engine directory
-      - name: Locate Ivy Engine
+          unzip ivy-designer.zip
+
+      # 2. Locate Designer directory
+      - name: Locate Ivy Designer
         run: |
-          ENGINE_DIR=$(find . -maxdepth 1 -type d -name "AxonIvyEngine*")
+          echo "===== ROOT ====="
+          ls -la
+
+          DESIGNER_DIR=$(find . -type d -name "AxonIvyDesigner*" | head -n 1)
+
+          if [ -z "$DESIGNER_DIR" ]; then
+            echo "❌ Designer directory not found"
+            exit 1
+          fi
+
+          echo "DESIGNER_DIR=$DESIGNER_DIR" >> $GITHUB_ENV
+          echo "Designer found at: $DESIGNER_DIR"
+
+      # 3. Locate embedded Engine inside Designer
+      - name: Locate Embedded Engine
+        run: |
+          ENGINE_DIR=$(find "$DESIGNER_DIR" -type d -name "AxonIvyEngine*" | head -n 1)
+
+          if [ -z "$ENGINE_DIR" ]; then
+            echo "❌ Embedded Engine not found inside Designer"
+            exit 1
+          fi
+
           echo "ENGINE_DIR=$ENGINE_DIR" >> $GITHUB_ENV
           echo "Engine found at: $ENGINE_DIR"
 
-      # 3. Deploy project (instead of CLI build)
+      # 4. Validate binary
+      - name: Validate Engine Binary
+        run: |
+          if [ ! -f "$ENGINE_DIR/bin/AxonIvyEngine" ]; then
+            echo "❌ AxonIvyEngine binary not found"
+            find "$ENGINE_DIR" -maxdepth 2
+            exit 1
+          fi
+
+      # 5. Deploy project
       - name: Deploy Axon Ivy Project
         run: |
-          mkdir -p $ENGINE_DIR/deploy/app
-          cp -r . $ENGINE_DIR/deploy/app
+          set -e
+          mkdir -p "$ENGINE_DIR/deploy/app"
+          cp -r . "$ENGINE_DIR/deploy/app"
 
-      # 4. Start Ivy Engine properly
+      # 6. Start Ivy Engine
       - name: Start Ivy Engine
         run: |
-          cd $ENGINE_DIR/bin
+          set -e
+          cd "$ENGINE_DIR/bin"
+
           chmod +x AxonIvyEngine
 
-          ./AxonIvyEngine -startdaemon > ../../ivy.log 2>&1
+          ./AxonIvyEngine -startdaemon > ../../ivy.log 2>&1 &
 
-          echo "Waiting for Ivy Engine to be ready..."
+          echo "Waiting for Ivy Engine..."
 
           for i in {1..60}; do
             if curl -s http://localhost:8080 > /dev/null; then
-              echo "Ivy Engine is ready"
+              echo "✅ Ivy Engine is ready"
               exit 0
             fi
             sleep 2
           done
 
-          echo "Ivy Engine failed to start"
+          echo "❌ Ivy Engine failed to start"
           echo "===== LOG ====="
           cat ../../ivy.log
           exit 1
 
-      # 5. (Optional) Debug endpoint
+      # 7. Check UI
       - name: Check UI
         run: |
           curl -I http://localhost:8080
-
-      # 6. (Optional) UI Screenshot
-      # - name: Install Playwright
-      #   run: |
-      #     npm install -D playwright
-      #     npx playwright install --with-deps
-
-      # - name: Run UI Screenshot Script
-      #   run: |
-      #     node screenshot.js
-
-      # - name: Upload Screenshots
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: screenshots
-      #     path: screenshots/
