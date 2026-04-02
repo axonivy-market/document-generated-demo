@@ -40,7 +40,7 @@ jobs:
 
       - name: Set Copilot model and reasoning effort
         run: |
-          echo "COPILOT_MODEL=gpt-5-min" >> $GITHUB_ENV
+          echo "COPILOT_MODEL=gpt-5-mini" >> $GITHUB_ENV
           echo "COPILOT_REASONING_EFFORT=high" >> $GITHUB_ENV
 
       - name: Generate README
