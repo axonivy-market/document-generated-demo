@@ -1,0 +1,6 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/data-class/13.1.0/data-class.json",
+  "simpleName" : "ensureTableExistsData",
+  "namespace" : "com.axonivy.market.ibm.db2.luw.connector.demo",
+  "isBusinessCaseData" : false
+}

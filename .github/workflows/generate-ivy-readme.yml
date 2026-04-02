@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write      # Needed to create branches and commit
-  pull-requests: write # Needed to create pull requests
+  contents: write
+  pull-requests: write
 
 jobs:
   generate-readme:
@@ -38,6 +38,11 @@ jobs:
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
 
+      - name: Set Copilot model and reasoning effort
+        run: |
+          echo "COPILOT_MODEL=gpt-5-min" >> $GITHUB_ENV
+          echo "COPILOT_REASONING_EFFORT=high" >> $GITHUB_ENV
+
       - name: Generate README
         run: |
           set -euo pipefail
@@ -60,10 +65,12 @@ jobs:
           
           # Run copilot programmatically (non-interactive mode)
           # -p: prompt flag
+          # --model: model to use (read from COPILOT_MODEL env set in previous step)
+          # --reasoning-effort: set reasoning depth (read from COPILOT_REASONING_EFFORT env)
           # --allow-tool='write': allow Copilot to write files
           # --allow-tool='shell(git:*)': allow git commands for context
           # --no-ask-user: no prompting (needed for automation)
-          timeout 600 copilot -p "$(cat /tmp/readme-prompt.txt)" --allow-tool='write' --allow-tool='shell(git:*)' --no-ask-user > /tmp/copilot-output.txt 2>&1 || {
+          timeout 600 copilot -p "$(cat /tmp/readme-prompt.txt)" --model "${COPILOT_MODEL}" --reasoning-effort "${COPILOT_REASONING_EFFORT}" --allow-tool='write' --allow-tool='shell(git:*)' --no-ask-user > /tmp/copilot-output.txt 2>&1 || {
             EXIT_CODE=$?
             if [ $EXIT_CODE -eq 124 ]; then
               echo "⚠ Timeout after 600 seconds"

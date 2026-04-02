@@ -1,0 +1,65 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/13.1.2/process.json",
+  "id" : "1973A66C3F5880E8",
+  "kind" : "CALLABLE_SUB",
+  "config" : {
+    "data" : "com.axonivy.market.ibm.db2.luw.connector.demo.ensureTableExistsData"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "CallSubStart",
+      "name" : "call()",
+      "config" : {
+        "signature" : "call"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f2", "to" : "f3" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "CallSubEnd",
+      "visual" : {
+        "at" : { "x" : 352, "y" : 64 }
+      }
+    }, {
+      "id" : "f3",
+      "type" : "Database",
+      "name" : "Create Table",
+      "config" : {
+        "query" : {
+          "dbName" : "DB2",
+          "sql" : {
+            "kind" : "ANY",
+            "stmt" : [
+              "CREATE TABLE Db2Test (",
+              "  Name VARCHAR(250) NOT NULL",
+              ")"
+            ]
+          }
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 64 }
+      },
+      "boundaries" : [ {
+          "id" : "f5",
+          "type" : "ErrorBoundaryEvent",
+          "name" : "ivy:error:database",
+          "config" : {
+            "errorCode" : "ivy:error:database"
+          },
+          "visual" : {
+            "at" : { "x" : 256, "y" : 104 }
+          },
+          "connect" : [
+            { "id" : "f6", "to" : "f1", "via" : [ { "x" : 352, "y" : 104 } ] }
+          ]
+        } ],
+      "connect" : [
+        { "id" : "f4", "to" : "f1", "color" : "default" }
+      ]
+    } ]
+}
