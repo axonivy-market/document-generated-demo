@@ -10,18 +10,63 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout source
+      # 1. Checkout
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Java (required by Ivy)
+      # 2. Setup Java
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      # 3. Download Axon Ivy Engine
+      # 3. Build main + demo → generate .iar
+      - name: Build Axon Ivy Artifacts (.iar)
+        run: |
+          set -e
+
+          mvn -B \
+            -pl ibm-db2-luw-connector,ibm-db2-luw-connector-demo \
+            -am clean install -DskipTests
+
+          echo "===== GENERATED IAR FILES ====="
+          find . -path "*/target/*.iar"
+
+      # 4. Collect all IARs
+      - name: Locate IARs
+        run: |
+          set -e
+
+          MODULES=("ibm-db2-luw-connector" "ibm-db2-luw-connector-demo")
+
+          IAR_FILES=""
+
+          for MODULE in "${MODULES[@]}"; do
+            echo "Searching in $MODULE..."
+
+            FILES=$(find $MODULE/target -maxdepth 1 -name "*.iar" || true)
+
+            if [ -z "$FILES" ]; then
+              echo "⚠️ No .iar found in $MODULE"
+              continue
+            fi
+
+            echo "Found in $MODULE:"
+            echo "$FILES"
+
+            IAR_FILES="$IAR_FILES $FILES"
+          done
+
+          if [ -z "$IAR_FILES" ]; then
+            echo "❌ No .iar files found in any module"
+            exit 1
+          fi
+
+          echo "IAR_FILES=$IAR_FILES" >> $GITHUB_ENV
+          echo "Collected IARs: $IAR_FILES"
+
+      # 5. Download Ivy Engine
       - name: Download Ivy Engine
         run: |
           set -e
@@ -30,12 +75,9 @@ jobs:
 
           unzip ivy-engine.zip
 
-      # 4. Detect Engine directory (robust)
+      # 6. Detect Engine Root
       - name: Detect Engine Root
         run: |
-          echo "===== ROOT CONTENT ====="
-          ls -la
-
           if [ -d "bin" ] && [ -f "bin/AxonIvyEngine" ]; then
             ENGINE_DIR=$(pwd)
           else
@@ -50,25 +92,29 @@ jobs:
           echo "ENGINE_DIR=$ENGINE_DIR" >> $GITHUB_ENV
           echo "Engine found at: $ENGINE_DIR"
 
-      # 5. Validate binary
+      # 7. Validate Engine Binary
       - name: Validate Engine Binary
         run: |
           if [ ! -f "$ENGINE_DIR/bin/AxonIvyEngine" ]; then
             echo "❌ AxonIvyEngine binary not found"
-            find "$ENGINE_DIR"
             exit 1
           fi
 
-      # 6. Deploy ONLY your app module
-      - name: Deploy Axon Ivy Project
+      # 8. Deploy ALL IARs
+      - name: Deploy IARs
         run: |
           set -e
-          mkdir -p "$ENGINE_DIR/deploy/app"
+          mkdir -p "$ENGINE_DIR/deploy"
 
-          # Adjust this to your actual module
-          cp -r ibm-db2-luw-connector "$ENGINE_DIR/deploy/app/"
+          for IAR in $IAR_FILES; do
+            echo "Deploying $IAR"
+            cp "$IAR" "$ENGINE_DIR/deploy/"
+          done
 
-      # 7. Start Ivy Engine
+          echo "===== DEPLOY FOLDER ====="
+          ls -la "$ENGINE_DIR/deploy"
+
+      # 9. Start Ivy Engine
       - name: Start Ivy Engine
         run: |
           set -e
@@ -80,7 +126,7 @@ jobs:
 
           echo "Waiting for Ivy Engine..."
 
-          for i in {1..90}; do
+          for i in {1..120}; do
             if curl -s http://localhost:8080 > /dev/null; then
               echo "✅ Ivy Engine is ready"
               exit 0
@@ -88,19 +134,18 @@ jobs:
             sleep 2
           done
 
-          echo "❌ Ivy Engine failed to start"
+          echo "❌ Engine failed to start"
           echo "===== LOG ====="
           cat ../../ivy.log
           exit 1
 
-      # 8. Basic UI check
+      # 10. Check UI
       - name: Check UI
         run: |
-          echo "Checking HTTP response..."
           curl -I http://localhost:8080
 
-      # 9. (Optional) Print log for debugging
-      - name: Print Ivy Log (always)
+      # 11. Always print logs
+      - name: Print Ivy Log
         if: always()
         run: |
           echo "===== IVY LOG ====="
