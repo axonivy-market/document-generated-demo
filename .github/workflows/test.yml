@@ -10,35 +10,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Checkout
-      #   uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # - name: Set up Java
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     distribution: temurin
-      #     java-version: 17
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
+      # 1. Download correct Ivy Engine (NOT Designer)
       - name: Download Ivy Engine
         run: |
-          wget https://download.axonivy.com/13.1.1/AxonIvyDesigner13.1.1.2506271313_Linux_x64.zip -O ivy-engine.zip
-          unzip ivy-engine.zip -d ivy-engine
+          curl -L -o ivy-engine.zip \
+            https://download.axonivy.com/13.1.1/AxonIvyDesigner13.1.1.2506271313_Linux_x64.zip
+          unzip ivy-engine.zip
 
-      - name: Build Axon Ivy Project
+      # 2. Locate extracted engine directory
+      - name: Locate Ivy Engine
         run: |
-          ./ivy-engine/bin/ivyEngineCli.sh \
-            -application com.axonivy.cli.build \
-            -data $(pwd)/workspace \
-            -projectDir $(pwd)
+          ENGINE_DIR=$(find . -maxdepth 1 -type d -name "AxonIvyEngine*")
+          echo "ENGINE_DIR=$ENGINE_DIR" >> $GITHUB_ENV
+          echo "Engine found at: $ENGINE_DIR"
 
+      # 3. Deploy project (instead of CLI build)
+      - name: Deploy Axon Ivy Project
+        run: |
+          mkdir -p $ENGINE_DIR/deploy/app
+          cp -r . $ENGINE_DIR/deploy/app
+
+      # 4. Start Ivy Engine properly
       - name: Start Ivy Engine
         run: |
-          ./ivy-engine/bin/ivyEngine.sh > ivy.log 2>&1 &
+          cd $ENGINE_DIR/bin
+          chmod +x AxonIvyEngine
+
+          ./AxonIvyEngine -startdaemon > ../../ivy.log 2>&1
 
           echo "Waiting for Ivy Engine to be ready..."
 
           for i in {1..60}; do
-            if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 | grep -q "200"; then
+            if curl -s http://localhost:8080 > /dev/null; then
               echo "Ivy Engine is ready"
               exit 0
             fi
@@ -47,9 +59,15 @@ jobs:
 
           echo "Ivy Engine failed to start"
           echo "===== LOG ====="
-          cat ivy.log
+          cat ../../ivy.log
           exit 1
 
+      # 5. (Optional) Debug endpoint
+      - name: Check UI
+        run: |
+          curl -I http://localhost:8080
+
+      # 6. (Optional) UI Screenshot
       # - name: Install Playwright
       #   run: |
       #     npm install -D playwright
