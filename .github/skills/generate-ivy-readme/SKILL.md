@@ -25,7 +25,7 @@ Output
   2. Description - no header required for this section:
      - Introduction and value proposition of the product in simple language for non-technical stakeholders.
      - Bullet list of key features in general which is extracted from the chosen main module (exclude demo/product artifacts)
-     - Exposed callable subprocesses provided by the main module
+     - Exposed CALLABLE_SUB processes start provided by the main module
   3. Demo (exact header: "## Demo")
   4. Setup (exact header: "## Setup")
   5. Optional: Screenshots / assets table (if images found in product module)
@@ -43,7 +43,7 @@ Behavior / Steps
 3. Pick the main module: prefer a module that is not `-demo`, `-test` or `-product`. If none found, the main module is the demo.
 4. Inspect the main module, looking for (these are the authoritative sources for the README's "Key features"):
    - Public API, exported services, SPI implementations and notable classes in `src/`.
-   - Callable subprocesses by calling this skill's sibling `callable-sub-summary` skill with the main module's process files as input.
+   - CallSubStart of CALLABLE_SUB by calling this skill's sibling `callable-sub-summary` skill with the main module's process files as input.
    - Mandatory configuration definitions in `config/` (roles, variables, databases, rest clients) to be listed in Setup.
    - Derive the "Key features" list (3–8 concise bullets) only from this main module — do not include demo-only artifacts here.
 5. Inspect demo module(s) for user flows (step lists) and demo-only assets:
@@ -56,8 +56,8 @@ Quality criteria / Acceptance checks
 ----------------------------------
 - README contains the headings in this order: product name  , `## Demo`, `## Setup`.
 - Language: simple, non-technical summary first; technical details in Setup.
-- Key features: 3–8 concise bullet points derived from the main module only. The writing style should be       accessible to non-technical stakeholders and marketing-oriented. It should avoid technical jargon and focus on the value proposition and capabilities of the product.
-- Exposed callables: list with name, parameters and return type where available.
+- Key features: 3–8 concise bullet points derived from the main module only. The writing style should be accessible to non-technical stakeholders and marketing-oriented. It should avoid technical jargon and focus on the value proposition and capabilities of the product.
+- Exposed CALLABLE_SUB processes: list with name, parameters and return type where available. If no CALLABLE_SUB processes are exposed, remove this section from the README.
 - Demo: one or more concrete user workflows (step lists) derived from demo processes.
 - Setup: include mandatory set up (if needed) in roles, variables, databases from main module.
 
@@ -71,7 +71,7 @@ Acceptance checklist for the skill author
 ---------------------------------------
 - [ ] Detect modules from root `pom.xml`.
 - [ ] Classify modules and select the main/demo/product modules.
-- [ ] Extract callable subprocesses when available.
+- [ ] Extract CALLABLE_SUB processes start when available.
 - [ ] Produce README with `## Demo` then `## Setup` headings.
 
 End of skill.

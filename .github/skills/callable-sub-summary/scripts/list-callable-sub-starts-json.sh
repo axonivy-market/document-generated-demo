@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage:
-#   bash list-callable-sub-starts-json.sh [glob] [output-file]
-# Examples:
-#   bash list-callable-sub-starts-json.sh
-#   bash list-callable-sub-starts-json.sh './msgraph-connector/processes/*.p.json'
-#   bash list-callable-sub-starts-json.sh './**/*.p.json' docs/callable-sub-starts.json
-
 GLOB_PATTERN="${1:-./**/*.p.json}"
 OUTPUT_FILE="${2:-}"
 

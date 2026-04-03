@@ -2,6 +2,22 @@ name: Generate Axon Ivy README
 
 on:
   workflow_dispatch:
+    inputs:
+      repo_url:
+        description: 'Repository HTTPS or SSH URL to clone (e.g. https://github.com/owner/repo.git)'
+        required: true
+      branch:
+        description: 'Branch to use as base (optional). If empty, the repo default branch will be used.'
+        required: false
+        default: ''
+      model:
+        description: 'Copilot model to use (e.g. gpt-5-mini, gpt-5, gpt-4o-mini).'
+        required: false
+        default: 'gpt-5-mini'
+      copilot_token:
+        description: 'Copilot fine-grained token (optional). If empty, workflow secret COPILOT_FINE_GRAINED_TOKEN will be used.'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -11,24 +27,10 @@ jobs:
   generate-readme:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout workflow repository (for skill files)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Create update branch from default branch
-        run: |
-          set -euo pipefail
-          BASE="${{ github.event.repository.default_branch }}"
-          BRANCH_NAME="update-readme-${{ github.run_id }}"
-          echo "Creating branch $BRANCH_NAME from $BASE"
-          # Fetch the base branch and create a new branch from it
-          git fetch origin "$BASE"
-          git checkout -b "$BRANCH_NAME" "origin/$BASE"
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git rev-parse --abbrev-ref HEAD
-        shell: bash
 
       - name: Setup Node.js (for npm fallback)
         uses: actions/setup-node@v4
@@ -39,38 +41,76 @@ jobs:
         run: npm install -g @github/copilot
 
       - name: Set Copilot model and reasoning effort
-        run: |
-          echo "COPILOT_MODEL=gpt-5-mini" >> $GITHUB_ENV
-          echo "COPILOT_REASONING_EFFORT=high" >> $GITHUB_ENV
-
-      - name: Generate README
+        id: set-copilot
         run: |
           set -euo pipefail
-          
+          MODEL_INPUT="${{ github.event.inputs.model }}"
+          if [ -z "$MODEL_INPUT" ]; then
+            MODEL_INPUT="gpt-5-mini"
+          fi
+          echo "COPILOT_MODEL=$MODEL_INPUT" >> $GITHUB_ENV
+          echo "COPILOT_REASONING_EFFORT=high" >> $GITHUB_ENV
+
+      - name: Clone target repository and create branch
+        id: clone
+        run: |
+          set -euo pipefail
+          TARGET_DIR=target-repo
+          REPO_URL="${{ github.event.inputs.repo_url }}"
+          BRANCH_INPUT="${{ github.event.inputs.branch }}"
+          echo "Cloning $REPO_URL into $TARGET_DIR"
+          if [ -n "$BRANCH_INPUT" ]; then
+            git clone --depth=1 --branch "$BRANCH_INPUT" "$REPO_URL" "$TARGET_DIR"
+            BASE_BRANCH="$BRANCH_INPUT"
+          else
+            git clone --depth=1 "$REPO_URL" "$TARGET_DIR"
+            BASE_BRANCH=$(git -C "$TARGET_DIR" symbolic-ref --short HEAD || git -C "$TARGET_DIR" rev-parse --abbrev-ref HEAD)
+          fi
+          cd "$TARGET_DIR"
+          BRANCH_NAME="update-readme-${{ github.run_id }}"
+          git checkout -b "$BRANCH_NAME"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          echo "Working directory: $(pwd)"
+          REPO_PATH=$(echo "$REPO_URL" | sed -E 's#^.*github.com[:/]+##' | sed -E 's#\.git$##')
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "target_dir=$TARGET_DIR" >> $GITHUB_OUTPUT
+          echo "base_branch=$BASE_BRANCH" >> $GITHUB_OUTPUT
+          echo "repo_path=$REPO_PATH" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Generate README
+        id: generate
+        run: |
+          set -euo pipefail
           echo "=== Generating README using GitHub Copilot ==="
-          
           if ! command -v gh >/dev/null 2>&1; then
             echo "Error: GitHub CLI not found"
             exit 1
           fi
-          
           echo "GitHub CLI: $(gh --version)"
-          
-          # Create prompt file
+          TARGET_DIR="${{ steps.clone.outputs.target_dir }}"
+          # ensure skill is available in target repo
+          if [ -d ".github/skills/generate-ivy-readme" ]; then
+            mkdir -p "$TARGET_DIR/.github/skills"
+            cp -r .github/skills/generate-ivy-readme "$TARGET_DIR/.github/skills/"
+          fi
+          # Decide copilot token to use (input value wins, otherwise fallback secret)
+          COPILOT_INPUT_TOKEN="${{ github.event.inputs.copilot_token }}"
+          COPILOT_SECRET_TOKEN="${{ secrets.COPILOT_FINE_GRAINED_TOKEN }}"
+          if [ -n "$COPILOT_INPUT_TOKEN" ]; then
+            COPILOT_TOKEN="$COPILOT_INPUT_TOKEN"
+          else
+            COPILOT_TOKEN="$COPILOT_SECRET_TOKEN"
+          fi
+          export GITHUB_TOKEN="$COPILOT_TOKEN"
+          # Prepare prompt
           cat > /tmp/readme-prompt.txt << 'PROMPT_EOF'
           Use the /generate-ivy-readme skill to generate a README.md for this Axon Ivy project.
           PROMPT_EOF
-          
           echo "Invoking Copilot with skill..."
-          
-          # Run copilot programmatically (non-interactive mode)
-          # -p: prompt flag
-          # --model: model to use (read from COPILOT_MODEL env set in previous step)
-          # --reasoning-effort: set reasoning depth (read from COPILOT_REASONING_EFFORT env)
-          # --allow-tool='write': allow Copilot to write files
-          # --allow-tool='shell(git:*)': allow git commands for context
-          # --no-ask-user: no prompting (needed for automation)
-          timeout 600 copilot -p "$(cat /tmp/readme-prompt.txt)" --model "${COPILOT_MODEL}" --reasoning-effort "${COPILOT_REASONING_EFFORT}" --allow-tool='write' --allow-tool='shell(git:*)' --no-ask-user > /tmp/copilot-output.txt 2>&1 || {
+          MODEL="${COPILOT_MODEL:-gpt-5-mini}"
+          timeout 600 copilot -p "$(cat /tmp/readme-prompt.txt)" --model "${MODEL}" --reasoning-effort "${COPILOT_REASONING_EFFORT}" --allow-tool='write' --allow-tool='shell(git:*)' --no-ask-user > /tmp/copilot-output.txt 2>&1 || {
             EXIT_CODE=$?
             if [ $EXIT_CODE -eq 124 ]; then
               echo "⚠ Timeout after 600 seconds"
@@ -78,39 +118,57 @@ jobs:
               echo "⚠ Exit code: $EXIT_CODE"
             fi
           }
-          
           echo ""
           echo "=== Output ==="
-          cat /tmp/copilot-output.txt
-          
-          # Save output as README if it's markdown
+          cat /tmp/copilot-output.txt || true
+          # Save output as README in the target repo if it's markdown
           if [ -s /tmp/copilot-output.txt ] && grep -q "^#" /tmp/copilot-output.txt; then
-            cp /tmp/copilot-output.txt README.md
-            echo ""
-            echo "✓ README.md created"
-          elif [ -f README.md ]; then
-            echo "✓ README.md exists"
+            cp /tmp/copilot-output.txt "$TARGET_DIR/README.md"
+            echo "✓ README.md created in $TARGET_DIR"
+          elif [ -f "$TARGET_DIR/README.md" ]; then
+            echo "✓ README.md already exists in $TARGET_DIR"
           else
             echo "✗ README.md not created"
-            ls -la
-            exit 1
+            ls -la "$TARGET_DIR"
+            echo "changes=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.COPILOT_FINE_GRAINED_TOKEN }}
+          # Commit changes if any
+          git -C "$TARGET_DIR" add README.md
+          if git -C "$TARGET_DIR" diff --cached --quiet; then
+            echo "No changes to commit"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            git -C "$TARGET_DIR" commit -m "chore: generate README with Copilot skill '.github/skills/generate-ivy-readme'"
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
 
       - name: Push branch to remote
+        if: steps.generate.outputs.changes == 'true'
         run: |
-          BRANCH_NAME="update-readme-${{ github.run_id }}"
-          git push -u origin "$BRANCH_NAME"
+          set -euo pipefail
+          TARGET_DIR="${{ steps.clone.outputs.target_dir }}"
+          BRANCH_NAME="${{ steps.clone.outputs.branch_name }}"
+          REPO_PATH="${{ steps.clone.outputs.repo_path }}"
+          GH_TOKEN="${{ secrets.GH_TOKEN }}"
+          if [ -n "$GH_TOKEN" ]; then
+            AUTH_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO_PATH}.git"
+            git -C "$TARGET_DIR" remote set-url origin "$AUTH_URL"
+          fi
+          git -C "$TARGET_DIR" push -u origin "$BRANCH_NAME"
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        shell: bash
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          commit-message: "chore: generate README with Copilot skill"
-          title: "chore: update README (generated)"
-          body: "Automated README generated by Copilot skill '.github/skills/generate-ivy-readme'."
-          base: ${{ github.event.repository.default_branch }}
-          branch: "update-readme-${{ github.run_id }}"
+        if: steps.generate.outputs.changes == 'true'
+        run: |
+          set -euo pipefail
+          REPO_PATH="${{ steps.clone.outputs.repo_path }}"
+          BRANCH_NAME="${{ steps.clone.outputs.branch_name }}"
+          BASE_BRANCH="${{ steps.clone.outputs.base_branch }}"
+          gh pr create --repo "$REPO_PATH" --title "chore: update README (generated)" --body "Automated README generated by Copilot skill '.github/skills/generate-ivy-readme'." --base "$BASE_BRANCH" --head "$BRANCH_NAME"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        shell: bash

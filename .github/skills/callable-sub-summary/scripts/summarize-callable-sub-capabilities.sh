@@ -20,7 +20,7 @@ json_tmp="$(mktemp)"
 summary_tmp="$(mktemp)"
 trap 'rm -f "$json_tmp" "$summary_tmp"' EXIT
 
-bash ./.github/skills/msgraph-callable-sub-listing/scripts/list-callable-sub-starts-json.sh "$GLOB_PATTERN" "$json_tmp" >/dev/null
+bash ./.github/skills/callable-sub-listing/scripts/list-callable-sub-starts-json.sh "$GLOB_PATTERN" "$json_tmp" >/dev/null
 
 jq -r '
   def cap: if length == 0 then . else (.[0:1] | ascii_upcase) + .[1:] end;

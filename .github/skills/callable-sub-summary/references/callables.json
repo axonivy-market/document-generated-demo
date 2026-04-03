@@ -3,7 +3,7 @@
   "glob": "./**/*.p.json",
   "processes": [
     {
-      "file": "./msgraph-connector/processes/msCalendar.p.json",
+      "file": "./connector/processes/msCalendar.p.json",
       "starts": [
         {
           "id": "f0",
