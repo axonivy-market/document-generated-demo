@@ -16,3 +16,7 @@ lib/mvn-deps/
 logs/
 src_dataClasses/
 src_wsproc/
+
+# BEGIN SKILLSHARE MANAGED - DO NOT EDIT
+_axonivy-market-document-generated-demo-skillshare/
+# END SKILLSHARE MANAGED
