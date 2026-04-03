@@ -1,8 +1,8 @@
 sources:
   - git: https://github.com/axonivy-market/document-generated-demo-skillshare.git
     branch: master
-    path: ./.github/skills
+    path: .github/skills
 
 targets:
-  - path: ./.github/skills
+  - path: .github/skills
     type: copy
