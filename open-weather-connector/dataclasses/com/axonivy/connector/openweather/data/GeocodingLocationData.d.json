@@ -1,0 +1,19 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/data-class/12.0.0/data-class.json",
+  "simpleName" : "GeocodingLocationData",
+  "namespace" : "com.axonivy.connector.openweather.data",
+  "isBusinessCaseData" : false,
+  "fields" : [ {
+    "name" : "results",
+    "type" : "java.util.List<org.openweathermap.api.geo1_0.client.GeoLocation>"
+  }, {
+    "name" : "param",
+    "type" : "com.axonivy.connector.openweather.data.GeocodingParams"
+  }, {
+    "name" : "error",
+    "type" : "ch.ivyteam.ivy.bpm.error.BpmError"
+  }, {
+    "name" : "result",
+    "type" : "org.openweathermap.api.geo1_0.client.GeoLocation"
+  } ]
+}

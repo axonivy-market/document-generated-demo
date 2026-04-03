@@ -1,0 +1,50 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/13.1.2/process.json",
+  "id" : "18D69CF66BD221F0",
+  "config" : {
+    "data" : "com.axonivy.connector.openweather.demo.data.Data"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start.ivp",
+      "config" : {
+        "signature" : "start",
+        "request" : {
+          "name" : "<%=ivy.cms.co(\"/Processes/ForecastWeatherDemo/name\")%>"
+        },
+        "case" : {
+          "name" : "<%=ivy.cms.co(\"/Processes/ForecastWeatherDemo/Tasks/DisplayForecastWeather/name\")%>"
+        }
+      },
+      "tags" : [
+        "demo"
+      ],
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f4", "to" : "f3" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 432, "y" : 64 }
+      }
+    }, {
+      "id" : "f3",
+      "type" : "DialogCall",
+      "name" : "ForecastWeatherDemo",
+      "config" : {
+        "dialog" : "com.axonivy.connector.openweather.demo.ui.ForecastWeatherDemo:start()"
+      },
+      "visual" : {
+        "at" : { "x" : 272, "y" : 63 },
+        "size" : { "width" : 174, "height" : 57 }
+      },
+      "connect" : [
+        { "id" : "f2", "to" : "f1" }
+      ]
+    } ]
+}
