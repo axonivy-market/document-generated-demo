@@ -2,7 +2,3 @@
 skills:
   - name: skillshare
     source: github.com/runkids/skillshare/skills/skillshare
-  - name: callable-sub-summary
-    source: https://github.com/axonivy-market/document-generated-demo-skillshare/tree/master/.github/skills/callable-sub-summary
-  - name: msgraph-callable-sub-listing
-    source: https://github.com/axonivy-market/document-generated-demo-skillshare/tree/master/.github/skills/msgraph-callable-sub-listing
