@@ -43,7 +43,7 @@ Behavior / Steps
 3. Pick the main module: prefer a module that is not `-demo`, `-test` or `-product`. If none found, the main module is the demo.
 4. Inspect the main module, looking for (these are the authoritative sources for the README's "Key features"):
    - Public API, exported services, SPI implementations and notable classes in `src/`.
-   - Callable subprocesses and processes in `processes/` that are intended as product features.
+   - Callable subprocesses by calling this skill's sibling `callable-sub-summary` skill with the main module's process files as input.
    - Mandatory configuration definitions in `config/` (roles, variables, databases, rest clients) to be listed in Setup.
    - Derive the "Key features" list (3–8 concise bullets) only from this main module — do not include demo-only artifacts here.
 5. Inspect demo module(s) for user flows (step lists) and demo-only assets:
