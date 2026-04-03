@@ -23,7 +23,7 @@ Output
 - A README markdown string that follows the Axon Ivy product README schema with these top-level sections in order:
   1. Title
   2. Description - no header required for this section:
-     - Introduction
+     - Introduction and value proposition of the product in simple language for non-technical stakeholders.
      - Bullet list of key features in general which is extracted from the chosen main module (exclude demo/product artifacts)
      - Exposed callable subprocesses provided by the main module
   3. Demo (exact header: "## Demo")
@@ -56,7 +56,7 @@ Quality criteria / Acceptance checks
 ----------------------------------
 - README contains the headings in this order: product name  , `## Demo`, `## Setup`.
 - Language: simple, non-technical summary first; technical details in Setup.
- - Key features: 3–8 concise bullet points derived from the main module only.
+- Key features: 3–8 concise bullet points derived from the main module only. The writing style should be       accessible to non-technical stakeholders and marketing-oriented. It should avoid technical jargon and focus on the value proposition and capabilities of the product.
 - Exposed callables: list with name, parameters and return type where available.
 - Demo: one or more concrete user workflows (step lists) derived from demo processes.
 - Setup: include mandatory set up (if needed) in roles, variables, databases from main module.
