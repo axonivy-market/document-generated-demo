@@ -95,10 +95,12 @@ jobs:
           export GITHUB_TOKEN="${{ secrets.COPILOT_FINE_GRAINED_TOKEN }}"
           # Prepare prompt
           cat > /tmp/readme-prompt.txt << 'PROMPT_EOF'
-          Use the /generate-ivy-readme skill to generate a new README.md to replace the current existing one for this Axon Ivy project.
+          Use the /generate-ivy-readme skill to generate a new README.md to replace the current existing one in product module for this Axon Ivy project.
           PROMPT_EOF
           echo "Invoking Copilot with skill..."
           MODEL="${COPILOT_MODEL:-gpt-5-mini}"
+          # Run Copilot inside the cloned target repository so tools/git operate there
+          cd "$TARGET_DIR"
           timeout 600 copilot -p "$(cat /tmp/readme-prompt.txt)" --model "${MODEL}" --reasoning-effort "${COPILOT_REASONING_EFFORT}" --allow-tool='write' --allow-tool='shell(git:*)' --no-ask-user > /tmp/copilot-output.txt 2>&1 || {
             EXIT_CODE=$?
             if [ $EXIT_CODE -eq 124 ]; then
@@ -129,7 +131,6 @@ jobs:
         shell: bash
 
       - name: Create Pull Request
-        if: steps.generate.outputs.changes == 'true'
         run: |
           set -euo pipefail
           REPO_PATH="${{ steps.clone.outputs.repo_path }}"
