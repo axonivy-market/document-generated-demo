@@ -14,10 +14,6 @@ on:
         description: 'Copilot model to use (e.g. gpt-5-mini, gpt-5, gpt-4o-mini).'
         required: false
         default: 'gpt-5-mini'
-      copilot_token:
-        description: 'Copilot fine-grained token (optional). If empty, workflow secret COPILOT_FINE_GRAINED_TOKEN will be used.'
-        required: false
-        default: ''
 
 permissions:
   contents: write
@@ -27,6 +23,11 @@ jobs:
   generate-readme:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout workflow repository (for skill files)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Setup Node.js (for npm fallback)
         uses: actions/setup-node@v4
         with:
@@ -91,14 +92,7 @@ jobs:
             cp -r .github/skills/generate-ivy-readme "$TARGET_DIR/.github/skills/"
           fi
           # Decide copilot token to use (input value wins, otherwise fallback secret)
-          COPILOT_INPUT_TOKEN="${{ github.event.inputs.copilot_token }}"
-          COPILOT_SECRET_TOKEN="${{ secrets.COPILOT_FINE_GRAINED_TOKEN }}"
-          if [ -n "$COPILOT_INPUT_TOKEN" ]; then
-            COPILOT_TOKEN="$COPILOT_INPUT_TOKEN"
-          else
-            COPILOT_TOKEN="$COPILOT_SECRET_TOKEN"
-          fi
-          export GITHUB_TOKEN="$COPILOT_TOKEN"
+          export GITHUB_TOKEN="${{ secrets.COPILOT_FINE_GRAINED_TOKEN }}"
           # Prepare prompt
           cat > /tmp/readme-prompt.txt << 'PROMPT_EOF'
           Use the /generate-ivy-readme skill to generate a new README.md to replace the current existing one for this Axon Ivy project.
