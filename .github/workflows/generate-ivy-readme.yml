@@ -27,11 +27,6 @@ jobs:
   generate-readme:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout workflow repository (for skill files)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Setup Node.js (for npm fallback)
         uses: actions/setup-node@v4
         with:
@@ -106,7 +101,7 @@ jobs:
           export GITHUB_TOKEN="$COPILOT_TOKEN"
           # Prepare prompt
           cat > /tmp/readme-prompt.txt << 'PROMPT_EOF'
-          Use the /generate-ivy-readme skill to generate a README.md for this Axon Ivy project.
+          Use the /generate-ivy-readme skill to generate a new README.md to replace the current existing one for this Axon Ivy project.
           PROMPT_EOF
           echo "Invoking Copilot with skill..."
           MODEL="${COPILOT_MODEL:-gpt-5-mini}"
