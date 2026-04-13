@@ -20,16 +20,7 @@ Inputs
 
 Output
 ------
-- A README markdown string that follows the Axon Ivy product README schema with these top-level sections in order:
-  1. Title
-  2. Description - no header required for this section:
-     - Introduction and value proposition of the product in simple language for non-technical stakeholders.
-     - Bullet list of key features in general which is extracted from the chosen main module (exclude demo/product artifacts)
-     - Exposed CALLABLE_SUB processes start provided by the main module
-  3. Demo (exact header: "## Demo")
-  4. Setup (exact header: "## Setup")
-  5. Optional: Screenshots / assets table (if images found in product module)
-
+- A README markdown string that follows the Axon Ivy product README schema with these top-level sections in order from [format reference](./references/output-format.md)
 - The skill should write `README.md` to the repository root when executed in-place. If the runner only returns a markdown string, the caller should save it to `README.md`.
 
 Behavior / Steps
