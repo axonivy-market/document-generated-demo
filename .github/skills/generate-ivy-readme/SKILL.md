@@ -34,9 +34,12 @@ Behavior / Steps
 3. Pick the main module: prefer a module that is not `-demo`, `-test` or `-product`. If none found, the main module is the demo.
 4. Inspect the main module, looking for (these are the authoritative sources for the README's "Key features"):
    - Public API, exported services, SPI implementations and notable classes in `src/`.
-   - CallSubStart of CALLABLE_SUB by calling this skill's sibling `callable-sub-summary` skill with the main module's process files as input.
-   - Mandatory configuration definitions in `config/` (roles, variables, databases, rest clients) to be listed in Setup.
    - Derive the "Key features" list (3–8 concise bullets) only from this main module — do not include demo-only artifacts here.
+   - CallSubStart of CALLABLE_SUB by calling this skill's sibling `callable-sub-summary` skill with the main module's process files as input.
+   - Available form components by calling this skill's sibling `form-components-summary` skill with the main module's form files as input.
+   - Mandatory configuration definitions in `config/`:
+       - Existing role from `roles.xml` (do not include default "Everyone" role) which could be mentioned in the component section of the README.
+       - Existing open api spec from `rest-clients.yaml` which could be mentioned in the component section of the README.
 5. Inspect demo module(s) for user flows (step lists) and demo-only assets:
    - Find process definitions and any CMS or webContent pages used by the demo.
    - Translate sequence of demo processes into a step-by-step user workflow for the `## Demo` section.
