@@ -11,8 +11,20 @@ on:
         required: false
         default: 'master'
       model:
-        description: 'Copilot model to use (e.g. gpt-5-mini, gpt-5, gpt-4o-mini).'
-        required: false
+        description: 'Copilot model to use'
+        type: choice
+        options:
+          - 'claude-sonnet-4.6'
+          - 'claude-sonnet-4.5'
+          - 'claude-haiku-4.5'
+          - 'claude-opus-4.6'
+          - 'claude-opus-4.5'
+          - 'claude-sonnet-4'
+          - 'gpt-5.3-codex'
+          - 'gpt-5.2-codex'
+          - 'gpt-5.2'
+          - 'gpt-5-mini'
+          - 'gpt-4.1'
         default: 'gpt-5-mini'
 
 permissions:
@@ -41,9 +53,6 @@ jobs:
         run: |
           set -euo pipefail
           MODEL_INPUT="${{ github.event.inputs.model }}"
-          if [ -z "$MODEL_INPUT" ]; then
-            MODEL_INPUT="gpt-5-mini"
-          fi
           echo "COPILOT_MODEL=$MODEL_INPUT" >> $GITHUB_ENV
           echo "COPILOT_REASONING_EFFORT=high" >> $GITHUB_ENV
 
