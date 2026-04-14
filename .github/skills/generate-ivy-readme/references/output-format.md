@@ -13,6 +13,11 @@ Step-by-step user workflow derived from the demo module(s). This should describe
 
 ## Setup
 Technical setup instructions derived from the main module's configuration definitions. This should include any mandatory configuration steps such as roles, variables, databases, and rest clients that are required to get the product up and running.
+If the main module requires variables, the README should include a code snippet with the content of `@variables.yaml@` as placeholders for required values which will be replaced while the module is being packaged as below:
+
+```
+@variables.yaml@
+```
 
 ## Components
 List of notable components exposed by the main module, categorized by type (e.g. CALLABLE_SUB processes, form components, PI process extensions, Open API resources, Maven artifacts). Each item should include relevant details such as parameters, return types, and usage notes. If no components of a given type are exposed, that category should be omitted from the README.

@@ -5,7 +5,7 @@ description: Generate a product README for an Axon Ivy project.
 
 Purpose
 -------
-Create a well-structured, detailed README for an Axon Ivy product that follows the Axon Ivy product README schema.
+Create a well-structured, detailed README for an Axon Ivy product that follows the Axon Ivy product README schema with these top-level sections in order from [format reference](./references/output-format.md). The README should be accessible to non-technical stakeholders while also providing technical details for developers. The content should be derived from the main module and demo module(s) of the project, with a clear separation between product features and demo-only assets.
 
 When to use
 -----------
@@ -34,9 +34,9 @@ Behavior / Steps
 3. Pick the main module: prefer a module that is not `-demo`, `-test` or `-product`. If none found, the main module is the demo.
 4. Inspect the main module, looking for (these are the authoritative sources for the README's "Key features"):
    - Public API, exported services, SPI implementations and notable classes in `src/`.
+   - **INVOKE SKILL: callable-sub-summary** — Pass the main module's process files (processes/*.p.json). Integrate the summaries into Key features.
+   - **INVOKE SKILL: form-components-summary** — Pass the main module path. Include available form components in Key features or Components section.
    - Derive the "Key features" list (3–8 concise bullets) only from this main module — do not include demo-only artifacts here.
-   - CallSubStart of CALLABLE_SUB by calling this skill's sibling `callable-sub-summary` skill with the main module's process files as input.
-   - Available form components by calling this skill's sibling `form-components-summary` skill with the main module's form files as input.
    - Mandatory configuration definitions in `config/`:
        - Existing role from `roles.xml` (do not include default "Everyone" role) which could be mentioned in the component section of the README.
        - Existing open api spec from `rest-clients.yaml` which could be mentioned in the component section of the README.
@@ -44,15 +44,15 @@ Behavior / Steps
    - Find process definitions and any CMS or webContent pages used by the demo.
    - Translate sequence of demo processes into a step-by-step user workflow for the `## Demo` section.
    - Include sample docker setup or provided example deployments only in the `## Demo` section (do not list them as Key features).
-6. Inspect product module for Maven artifacts to list in the `## Components` section by calling this skill's sibling `maven-artifact-listing` skill with the product module's `pom.xml` as input.
+6. Inspect product module for Maven artifacts:
+   - **INVOKE SKILL: maven-artifact-listing** — Pass the product module path. Integrate the artifact list into the `## Components` section.
 7. Render the final README. Ensure `## Demo` appears before `## Setup` and both are top-level headings exactly as written.
 
 Quality criteria / Acceptance checks
 ----------------------------------
-- README contains the headings in this order: product name  , `## Demo`, `## Setup`.
-- Language: simple, non-technical summary first; technical details in Setup.
+- README contains the headings in this order: product name  , `## Demo`, `## Setup`, `## Components`.
+- Language: simple, non-technical summary first; technical details in Setup and Components sections.
 - Key features: 3–8 concise bullet points derived from the main module only. The writing style should be accessible to non-technical stakeholders and marketing-oriented. It should avoid technical jargon and focus on the value proposition and capabilities of the product.
-- Exposed CALLABLE_SUB processes: list with name, parameters and return type where available. If no CALLABLE_SUB processes are exposed, remove this section from the README.
 - Demo: one or more concrete user workflows (step lists) derived from demo processes.
 - Setup: include mandatory set up (if needed) in roles, variables, databases from main module.
 
@@ -60,11 +60,10 @@ Implementation notes for the Copilot agent
 ----------------------------------------
 - Use an XML parser to read `pom.xml` and extract `<modules>` and `<artifactId>`.
 - Use heuristics to classify modules by suffix (`-demo`, `-test`, `-product`).
+- **MANDATORY: Invoke sibling skills in these steps:**
+  - At Step 4: Use `runSubagent` or equivalent to call `callable-sub-summary` with main module process files
+  - At Step 4: Use `runSubagent` or equivalent to call `form-components-summary` with main module path
+  - At Step 6: Use `runSubagent` or equivalent to call `maven-artifact-listing` with product module path
+  - Do NOT manually consolidate or skip these calls; they are required for complete README generation.
+  - Integrate skill outputs into corresponding README sections (Key features, Components).
 - When assembling the README, ensure "Key features" are sourced strictly from the chosen main module; demo-only artifacts (Docker Compose, sample data, demo scripts) belong only in the `## Demo` section.
-
-Acceptance checklist for the skill author
----------------------------------------
-- [ ] Detect modules from root `pom.xml`.
-- [ ] Classify modules and select the main/demo/product modules.
-- [ ] Extract CALLABLE_SUB processes start when available.
-- [ ] Produce README with `## Demo` then `## Setup` headings.
