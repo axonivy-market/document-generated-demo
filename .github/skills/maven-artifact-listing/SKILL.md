@@ -34,17 +34,17 @@ For each artifact, generates:
 
 ### Print to stdout (without version extraction)
 ```bash
-bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh docuware-connector-product/product.json
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path}
 ```
 
 ### Extract version from pom.xml and print to stdout
 ```bash
-bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh docuware-connector-product/product.json pom.xml
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} pom.xml
 ```
 
 ### Write to file and extract version from pom.xml
 ```bash
-bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh docuware-connector-product/product.json pom.xml docs/maven-artifacts.md
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} pom.xml {output file}
 ```
 
 ## Output Format
