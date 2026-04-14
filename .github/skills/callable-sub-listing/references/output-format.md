@@ -3,9 +3,8 @@
 The generated report is Markdown.
 
 ## Sections
-- Top heading: `# Callable Sub Connector Starts`
 - One section per CALLABLE_SUB file:
-  - `## <path>`
+  - `#### <path>`
 - Under each file:
   - `- No CallSubStart with tag connector`
   - or one bullet per connector start:

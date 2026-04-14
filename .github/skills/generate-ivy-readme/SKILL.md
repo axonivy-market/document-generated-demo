@@ -5,7 +5,9 @@ description: Generate a product README for an Axon Ivy project.
 
 Purpose
 -------
-Create a well-structured, detailed README for an Axon Ivy product that follows the Axon Ivy product README schema.
+Create a well-structured, detailed README for an Axon Ivy product that follows the standard schema with these top-level sections in order from [format reference](./references/output-format.md).
+The README should be accessible to non-technical stakeholders while also providing technical details for developers.
+The content should be derived from the main module and demo module(s) of the project, with a clear separation between product features and demo-only assets.
 
 When to use
 -----------
@@ -15,22 +17,17 @@ When to use
 Inputs
 ------
 - `workspacePath` (optional): path to repository root. Default: current workspace.
-- `pomPath` (optional): path to root `pom.xml` to scan.
+- `pomPath` (optional): path to root `pom.xml` to scan and extract version for maven-artifact-listing.
 - `module` (optional): explicit module name to treat as the main module.
 
 Output
 ------
-- A README markdown string that follows the Axon Ivy product README schema with these top-level sections in order:
-  1. Title
-  2. Description - no header required for this section:
-     - Introduction and value proposition of the product in simple language for non-technical stakeholders.
-     - Bullet list of key features in general which is extracted from the chosen main module (exclude demo/product artifacts)
-     - Exposed CALLABLE_SUB processes start provided by the main module
-  3. Demo (exact header: "## Demo")
-  4. Setup (exact header: "## Setup")
-  5. Optional: Screenshots / assets table (if images found in product module)
+- A README markdown string that follows the Axon Ivy product README schema with these top-level sections in order from [format reference](./references/output-format.md)
+- The skill should write `README.md` to the product module when executed in-place. If the runner only returns a markdown string, the caller should save it to `README.md`.
 
-- The skill should write `README.md` to the repository root when executed in-place. If the runner only returns a markdown string, the caller should save it to `README.md`.
+Restrictions
+------------
+- All of the result content from subskills (callable-sub-summary, form-components-summary, maven-artifact-listing) must be directly injected into the corresponding sections of the README without manual reformatting or summarization. This ensures traceability and correctness of the generated content.
 
 Behavior / Steps
 ----------------
@@ -43,35 +40,30 @@ Behavior / Steps
 3. Pick the main module: prefer a module that is not `-demo`, `-test` or `-product`. If none found, the main module is the demo.
 4. Inspect the main module, looking for (these are the authoritative sources for the README's "Key features"):
    - Public API, exported services, SPI implementations and notable classes in `src/`.
-   - CallSubStart of CALLABLE_SUB by calling this skill's sibling `callable-sub-summary` skill with the main module's process files as input.
-   - Mandatory configuration definitions in `config/` (roles, variables, databases, rest clients) to be listed in Setup.
    - Derive the "Key features" list (3–8 concise bullets) only from this main module — do not include demo-only artifacts here.
+   - **CALL SUBAGENT: callable-sub-listing** — Pass the main module's process files (processes/*.p.json). **Directly inject the output of this subagent into the `## Components` section using a placeholder of `{{callableSubSection}}`. Do not reformat or summarize; use the subagent's output verbatim.**
+   - **CALL SUBAGENT: form-components-summary** — Pass the main module path. **Directly inject the output of this subagent into the `## Components` section using a placeholder such as `{{formComponentSection}}`. Do not reformat or summarize; use the subagent's output verbatim.**
+   - Mandatory configuration definitions in `config/`:
+       - Existing role from `roles.xml` (do not include default "Everyone" role) which could be mentioned in the component section of the README.
+       - Rest client name and existing open api spec section from `rest-clients.yaml` which will be used for `{{openApiSection}}` in the Components section.
 5. Inspect demo module(s) for user flows (step lists) and demo-only assets:
    - Find process definitions and any CMS or webContent pages used by the demo.
    - Translate sequence of demo processes into a step-by-step user workflow for the `## Demo` section.
    - Include sample docker setup or provided example deployments only in the `## Demo` section (do not list them as Key features).
-7. Render the final README. Ensure `## Demo` appears before `## Setup` and both are top-level headings exactly as written.
+6. Inspect product module for Maven artifacts:
+   - **CALL SUBAGENT: maven-artifact-listing** — Pass the product module's `product.json` path and the root `pom.xml` path. The `maven-artifact-listing` subskill returns a list of artifacts with Maven dependency declarations. Insert the returned content verbatim at the `{{mavenArtifactSection}}` placeholder. Do not add additional formatting or change punctuation — inject the subskill output unchanged.
+7. The placeholder `{{variableSection}}` must be replaced with the exact fenced code block shown below (include the three backticks on their own lines). Ensure the code fence is preserved in the generated `README.md` output; emit the literal backtick characters and escape them if your templating engine would otherwise interpret or remove them.
+
+```
+@variables.yaml@
+```
+
+Implementation note: when your generator constructs the README string, it must include the three backtick characters as part of the output. If your templating or serialization step strips or normalizes markdown fences, output the backticks as literal characters (for example: output the string "```" directly) so the final README contains the fenced block exactly as shown above.
 
 Quality criteria / Acceptance checks
 ----------------------------------
-- README contains the headings in this order: product name  , `## Demo`, `## Setup`.
-- Language: simple, non-technical summary first; technical details in Setup.
+- README contains the headings in this order: product name, `### Key features`, `## Demo`, `## Setup`, `## Components`.
+- Language: simple, non-technical summary first; technical details in Setup and Components sections.
 - Key features: 3–8 concise bullet points derived from the main module only. The writing style should be accessible to non-technical stakeholders and marketing-oriented. It should avoid technical jargon and focus on the value proposition and capabilities of the product.
-- Exposed CALLABLE_SUB processes: list with name, parameters and return type where available. If no CALLABLE_SUB processes are exposed, remove this section from the README.
 - Demo: one or more concrete user workflows (step lists) derived from demo processes.
-- Setup: include mandatory set up (if needed) in roles, variables, databases from main module.
-
-Implementation notes for the Copilot agent
-----------------------------------------
-- Use an XML parser to read `pom.xml` and extract `<modules>` and `<artifactId>`.
-- Use heuristics to classify modules by suffix (`-demo`, `-test`, `-product`).
-- When assembling the README, ensure "Key features" are sourced strictly from the chosen main module; demo-only artifacts (Docker Compose, sample data, demo scripts) belong only in the `## Demo` section.
-
-Acceptance checklist for the skill author
----------------------------------------
-- [ ] Detect modules from root `pom.xml`.
-- [ ] Classify modules and select the main/demo/product modules.
-- [ ] Extract CALLABLE_SUB processes start when available.
-- [ ] Produce README with `## Demo` then `## Setup` headings.
-
-End of skill.
+- Before returning the final README, ensure that the outputs from the sibling skills - callable-sub-summary, form-components-summary, and maven-artifact-listing - are directly injected into the corresponding placeholders of the README without any manual reformatting or summarization. This is crucial for maintaining the accuracy and traceability of the generated content.
