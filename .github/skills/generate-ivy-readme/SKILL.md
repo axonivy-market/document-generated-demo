@@ -51,7 +51,7 @@ Behavior / Steps
    - Translate sequence of demo processes into a step-by-step user workflow for the `## Demo` section.
    - Include sample docker setup or provided example deployments only in the `## Demo` section (do not list them as Key features).
 6. Inspect product module for Maven artifacts:
-   - **CALL SUBAGENT: maven-artifact-listing** — Pass the product module's `product.json` path and the root `pom.xml` path. The `maven-artifact-listing` subskill returns a sequentially numbered list of artifacts with Maven dependency declarations (groupId, artifactId, version extracted from pom.xml with snapshot versions converted to release versions, and type). Insert the returned content verbatim at the `{{mavenArtifactSection}}` placeholder. Do not add additional formatting or change punctuation — inject the subskill output unchanged.
+   - **CALL SUBAGENT: maven-artifact-listing** — Pass the product module's `product.json` path and the root `pom.xml` path. The `maven-artifact-listing` subskill returns a list of artifacts with Maven dependency declarations. Insert the returned content verbatim at the `{{mavenArtifactSection}}` placeholder. Do not add additional formatting or change punctuation — inject the subskill output unchanged.
 7. The placeholder `{{variableSection}}` must be replaced with the exact fenced code block shown below (include the three backticks on their own lines). Ensure the code fence is preserved in the generated `README.md` output; emit the literal backtick characters and escape them if your templating engine would otherwise interpret or remove them.
 
 ```
