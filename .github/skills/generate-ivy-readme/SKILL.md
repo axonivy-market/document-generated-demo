@@ -21,7 +21,7 @@ Inputs
 Output
 ------
 - A README markdown string that follows the Axon Ivy product README schema with these top-level sections in order from [format reference](./references/output-format.md)
-- The skill should write `README.md` to the repository root when executed in-place. If the runner only returns a markdown string, the caller should save it to `README.md`.
+- The skill should write `README.md` to the product module when executed in-place. If the runner only returns a markdown string, the caller should save it to `README.md`.
 
 Behavior / Steps
 ----------------
@@ -44,6 +44,7 @@ Behavior / Steps
    - Find process definitions and any CMS or webContent pages used by the demo.
    - Translate sequence of demo processes into a step-by-step user workflow for the `## Demo` section.
    - Include sample docker setup or provided example deployments only in the `## Demo` section (do not list them as Key features).
+6. Inspect product module for Maven artifacts to list in the `## Components` section by calling this skill's sibling `maven-artifact-listing` skill with the product module's `pom.xml` as input.
 7. Render the final README. Ensure `## Demo` appears before `## Setup` and both are top-level headings exactly as written.
 
 Quality criteria / Acceptance checks
@@ -67,5 +68,3 @@ Acceptance checklist for the skill author
 - [ ] Classify modules and select the main/demo/product modules.
 - [ ] Extract CALLABLE_SUB processes start when available.
 - [ ] Produce README with `## Demo` then `## Setup` headings.
-
-End of skill.
