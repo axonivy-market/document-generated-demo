@@ -17,7 +17,7 @@ When to use
 Inputs
 ------
 - `workspacePath` (optional): path to repository root. Default: current workspace.
-- `pomPath` (optional): path to root `pom.xml` to scan.
+- `pomPath` (optional): path to root `pom.xml` to scan and extract version for maven-artifact-listing.
 - `module` (optional): explicit module name to treat as the main module.
 
 Output
@@ -51,7 +51,7 @@ Behavior / Steps
    - Translate sequence of demo processes into a step-by-step user workflow for the `## Demo` section.
    - Include sample docker setup or provided example deployments only in the `## Demo` section (do not list them as Key features).
 6. Inspect product module for Maven artifacts:
-   - **CALL SUBAGENT: maven-artifact-listing** — Pass the product module path. The `maven-artifact-listing` subskill MUST return only the bullet list lines that describe artifacts (it must NOT emit the `### Maven artifacts` heading). Insert the returned lines verbatim at the `{{mavenArtifactSection}}` placeholder under the existing `### Maven artifacts` heading. Do not add additional formatting (for example: do not wrap artifact identifiers or metadata in backticks) or change punctuation — inject the subskill output unchanged.
+   - **CALL SUBAGENT: maven-artifact-listing** — Pass the product module's `product.json` path and the root `pom.xml` path. The `maven-artifact-listing` subskill returns a sequentially numbered list of artifacts with Maven dependency declarations (groupId, artifactId, version extracted from pom.xml with snapshot versions converted to release versions, and type). Insert the returned content verbatim at the `{{mavenArtifactSection}}` placeholder. Do not add additional formatting or change punctuation — inject the subskill output unchanged.
 7. The placeholder `{{variableSection}}` must be replaced with the exact fenced code block shown below (include the three backticks on their own lines). Ensure the code fence is preserved in the generated `README.md` output; emit the literal backtick characters and escape them if your templating engine would otherwise interpret or remove them.
 
 ```
