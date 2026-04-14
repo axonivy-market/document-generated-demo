@@ -1,26 +1,60 @@
 ---
 name: maven-artifact-listing
-description: provide a list of maven artifacts that current Axon Ivy project could produce via product.json in product module.
+description: Extract maven artifacts from an Axon Ivy product.json file and generate a clean list with sequential numbering and Maven dependency XML snippets.
+argument-hint: 'path to product.json file'
+user-invocable: true
 ---
 
-Purpose
--------
-Provide a list of Maven artifacts that the current Axon Ivy project could produce via `product.json` in the product module.
+# Maven Artifact Listing
 
-Inputs
-------
-- `version` (optional): version string to include in the README. Default: "1.0.0".
-- `module` (optional): explicit module name to treat as the product module.
+Generate a clean Maven artifact listing from Axon Ivy product.json files with sequential numbering and raw XML dependency declarations.
 
-Output
-------
-- A README markdown string that follows the Axon Ivy Maven artifact README schema with these top-level sections in order from [format reference](./references/output-format.md)
+## Inputs
 
-Behavior / Steps
-----------------
-1. Read the `pom.xml` to identify the build version. If a `version` input is provided as snapshot, use its official release version instead (for example, "1.0.0-SNAPSHOT" should be treated as "1.0.0"). If no version can be determined, use the default "1.0.0".
-2. Check the `product.json` file in the product module for the list of artifacts that the project produces. If no `product.json` is found, return an empty artifact list.
+- **Required:** Path to `product.json` file (e.g., `docuware-connector-product/product.json`)
+- **Optional:** Path to `pom.xml` file to extract version. If version is snapshot (e.g., `1.0.0-SNAPSHOT`), it is converted to release version (`1.0.0`)
+- **Optional:** Output file path. If omitted, output prints to stdout
 
+## Features
 
-## Output
-- A markdown string that follows the Axon Ivy Maven artifact README schema with these top-level sections in order from [format reference](./references/output-format.md)
+Extracts artifacts from all installer types:
+- **maven-dependency** – Dependencies array
+- **maven-import** – Projects array  
+- **maven-dropins** – Dropins array
+
+For each artifact, generates:
+- Sequential number with artifact name and installer type
+- Raw XML `<dependency>` declaration with groupId, artifactId, version, and type
+
+## Prerequisites
+
+- `jq` command-line JSON processor (install via `apt install jq` on Linux/WSL, `brew install jq` on macOS, or `choco install jq` on Windows)
+
+## Usage
+
+### Print to stdout (without version extraction)
+```bash
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh docuware-connector-product/product.json
+```
+
+### Extract version from pom.xml and print to stdout
+```bash
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh docuware-connector-product/product.json pom.xml
+```
+
+### Write to file and extract version from pom.xml
+```bash
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh docuware-connector-product/product.json pom.xml docs/maven-artifacts.md
+```
+
+## Output Format
+
+See [format reference](./references/output-format.md) for detailed output structure and examples.
+
+## Integration
+
+Use this skill when:
+- Product.json is modified with new artifacts
+- Documentation needs to be refreshed
+- Maven dependencies must be shared with users/integrators
+- Artifact inventory needs to be generated for CI/CD pipelines
