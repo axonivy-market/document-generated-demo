@@ -134,6 +134,8 @@ jobs:
             AUTH_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO_PATH}.git"
             git -C "$TARGET_DIR" remote set-url origin "$AUTH_URL"
           fi
+          git -C "$TARGET_DIR" config user.name "github-actions[bot]"
+          git -C "$TARGET_DIR" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git -C "$TARGET_DIR" add .
           git -C "$TARGET_DIR" commit -m "Automated README update" || echo "Nothing to commit"
           git -C "$TARGET_DIR" push -u origin "$BRANCH_NAME"
