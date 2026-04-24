@@ -28,6 +28,7 @@ Output
 Restrictions
 ------------
 - All of the result content from subskills (callable-sub-summary, form-components-summary, maven-artifact-listing) must be directly injected into the corresponding sections of the README without manual reformatting or summarization. This ensures traceability and correctness of the generated content.
+- Image markdown snippets from `product-image-summary` must be used verbatim (do not alter the path or alt-text). Place them in the section indicated by the `Suggested readme placement` hint.
 
 Behavior / Steps
 ----------------
@@ -52,7 +53,13 @@ Behavior / Steps
    - Include sample docker setup or provided example deployments only in the `## Demo` section (do not list them as Key features).
 6. Inspect product module for Maven artifacts:
    - **CALL SUBAGENT: maven-artifact-listing** — Pass the product module's `product.json` path and the root `pom.xml` path. The `maven-artifact-listing` subskill returns a list of artifacts with Maven dependency declarations. Insert the returned content verbatim at the `{{mavenArtifactSection}}` placeholder. Do not add additional formatting or change punctuation — inject the subskill output unchanged.
-7. The placeholder `{{variableSection}}` must be replaced with the exact fenced code block shown below (include the three backticks on their own lines). Ensure the code fence is preserved in the generated `README.md` output; emit the literal backtick characters and escape them if your templating engine would otherwise interpret or remove them.
+   -  **CALL SUBAGENT: open-api-resource-listing** — Pass the product
+7. Collect available images from the product module:
+   - **CALL SUBAGENT: product-image-summary** — Pass the product module directory name (e.g. `open-weather-connector-product`). The subagent returns a catalog of images grouped by subdirectory with suggested alt-text and ready-to-copy markdown snippets.
+   - Each image entry includes a `> Suggested readme placement` hint (e.g. `## Demo`, `## Setup`, `## Components`). Use this hint to decide which README section the image belongs in.
+   - Insert each image's markdown snippet (`![alt](path)`) directly into the matching README section. Place images **after** the section's prose or step list, not inline within paragraphs.
+   - If no `images/` directory exists in the product module, skip this step silently.
+8. The placeholder `{{variableSection}}` must be replaced with the exact fenced code block shown below (include the three backticks on their own lines). Ensure the code fence is preserved in the generated `README.md` output; emit the literal backtick characters and escape them if your templating engine would otherwise interpret or remove them.
 
 ```
 @variables.yaml@
@@ -67,3 +74,4 @@ Quality criteria / Acceptance checks
 - Key features: 3–8 concise bullet points derived from the main module only. The writing style should be accessible to non-technical stakeholders and marketing-oriented. It should avoid technical jargon and focus on the value proposition and capabilities of the product.
 - Demo: one or more concrete user workflows (step lists) derived from demo processes.
 - Before returning the final README, ensure that the outputs from the sibling skills - callable-sub-summary, form-components-summary, and maven-artifact-listing - are directly injected into the corresponding placeholders of the README without any manual reformatting or summarization. This is crucial for maintaining the accuracy and traceability of the generated content.
+- Images discovered by `product-image-summary` must appear in the README in the section matching their placement hint. Each section that has images should show them after the text content of that section.
