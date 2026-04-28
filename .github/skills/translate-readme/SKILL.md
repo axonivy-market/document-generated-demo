@@ -27,7 +27,8 @@ Produce a locale-specific copy of a README that reads naturally to native speake
 - `sections` (optional): Which top-level sections to translate. Accepts:
   - `before:<heading>` — translate everything up to (but not including) the named heading.
   - A comma-separated list of heading names to translate (e.g. `Key features,Setup`).
-  - `all` — translate the entire file (default when omitted).
+  - `all` — translate the entire file.
+  - Default (when omitted): translate only the preamble (title, description, and `### Key features` block) — everything before the first `## ` section heading. Do **not** include any `## ` sections in the output.
 - `tone` (optional): Writing style guidance, e.g. `informal and friendly`, `formal`, `marketing`. Default: `professional`.
 
 ## Output
@@ -44,7 +45,8 @@ Produce a locale-specific copy of a README that reads naturally to native speake
 2. **Determine the translation scope** using the `sections` parameter:
    - If `before:<heading>` is specified, collect the preamble and all sections that appear before `<heading>`. The `<heading>` section and everything after it are out of scope.
    - If a heading list is given, only those named sections (and the preamble if `preamble` is listed) are in scope.
-   - If `sections` is omitted or set to `all`, the entire file is in scope.
+   - If `sections` is set to `all`, the entire file is in scope.
+   - **Default (sections omitted)**: scope is limited to the preamble only — the title, introductory description, and `### Key features` block (everything before the first `## ` section heading). All `## ` sections are excluded from the output entirely.
 
 3. **Translate each in-scope section** according to the following rules:
    - Use the `targetLanguage` and `tone` to guide the translation.
@@ -72,22 +74,27 @@ Produce a locale-specific copy of a README that reads naturally to native speake
      <!-- Translated from README.md | Language: <targetLanguage> | Generated: <date> -->
      ```
    - Write translated sections in their original order.
-   - Copy any out-of-scope sections verbatim, in their original position.
+   - **Do not append out-of-scope sections** — regardless of whether the default scope (preamble only) or `before:<heading>` is used. The output file contains **only** the translated in-scope content. Never copy verbatim or append sections that fall outside the specified scope.
+   - When `sections` is set to `all` or a comma-separated heading list, only the explicitly listed sections appear in the output; all other sections are omitted.
    - Write the result to `outputFile` in the same directory as `sourceFile`.
 
 6. **Validate** before writing:
    - Confirm that no fenced code block content was altered.
    - Confirm that no image paths were changed.
-   - Confirm that the number of top-level sections in the output matches the source.
+   - When using default scope, confirm that the output contains **only** the preamble (no `## ` section headings from the source are present).
+   - When using `before:<heading>` scope, confirm that the output does **not** contain the boundary heading or any section after it.
+   - When using a heading-list scope, confirm that the number of top-level sections in the output matches the number of listed headings.
 
 ## Quality criteria / Acceptance checks
 
 - The output file exists at the expected path.
-- All Markdown headings are present in the same order as the source.
+- When using default scope: the output contains **only** the preamble (title, description, key features) — no `## Demo`, `## Setup`, `## Components`, or other `## ` sections are present.
+- When using `before:<heading>` scope: the output contains **only** the in-scope content — the boundary heading and all subsequent sections are absent.
+- When using a heading-list scope: all expected headings are present in the same order as the source.
 - Code fences and their content are byte-for-byte identical to the source.
 - Image `src` paths are unchanged; alt text is translated where applicable.
 - The translation reads naturally in the target language with the requested tone — avoid literal word-for-word translations that sound unnatural.
-- No section is accidentally duplicated or omitted.
+- No section is accidentally duplicated or omitted from the intended scope.
 - The comment header is present at the top of the output file.
 
 ## Example invocation
