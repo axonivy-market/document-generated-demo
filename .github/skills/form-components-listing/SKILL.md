@@ -1,7 +1,7 @@
 ---
 name: form-components-listing
 description: give me a detailed summary about available form components from main module(s)?
-argument-hint: '[optional: main module name]'
+argument-hint: '[optional: path to main module src_hd directory, e.g. my-connector/src_hd]'
 user-invocable: true
 ---
 
@@ -10,29 +10,23 @@ user-invocable: true
 Generate a concise, marketing-oriented summary of available form dialog and form components from main module(s) in an Axon Ivy project.
 
 ## Inputs
-- Optional path to UI dialog directory of main module(s).
+- Optional path to the `src_hd` directory of the main module (e.g. `my-connector/src_hd`). Defaults to scanning the current workspace.
 
-## Generated report
-----------------
+## Usage
 
-When invoked, this skill runs the scanner script and writes a Markdown report to:
+**When invoked as a sub-skill** (e.g. from `generate-ivy-readme`): print to stdout — no file is written. The caller injects stdout verbatim into the target placeholder.
 
-- `.github/skills/form-components-listing/output/ivy-scan.md` (full scan report)
-- `.github/skills/form-components-listing/output/ivy-summary.md` (concise marketing summary)
+**When run directly from CLI:**
 
-You can regenerate the reports locally by running the scanner script included in the repository:
-
-```
+```bash
+# Full scan report to file
 .github/skills/form-components-listing/scripts/form-components-listing.sh {product module}/src_hd --md > .github/skills/form-components-listing/output/ivy-scan.md
+
+# Concise dialogs-only summary to stdout
+.github/skills/form-components-listing/scripts/form-components-listing.sh {product module}/src_hd --md --summary
 ```
 
-To produce the concise dialogs-only summary and print it to stdout, run the scanner with the `--summary` flag (no separate helper required):
-
-```
-.github/skills/form-components-listing/scripts/form-components-listing.sh {product module} --md --summary
-```
-
-The generated reports can be saved under `.github/skills/form-components-listing/output/` if desired. The scanner and summary options are module-agnostic; callers may pass any module or top-level UI folder.
+The scanner is module-agnostic; pass any `src_hd` directory or top-level UI folder.
 
 ## Output
 - The skill returns a concise dialogs-only markdown summary. The exact output schema is defined in the reference file:
