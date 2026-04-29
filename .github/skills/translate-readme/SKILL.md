@@ -1,114 +1,70 @@
 ---
 name: translate-readme
-description: Translate selected sections of a product README into a target language and write the result to a locale-specific output file (e.g. README_DE.md). Preserves all Markdown formatting, code fences, image links, and variable placeholders unchanged.
-argument-hint: '[source README path] [target language] [output file name]'
+description: Translate the product README (title, description, and ### Key features section) into German and write the result to README_DE.md in the product module.
+argument-hint: '<product-module-name>'
 user-invocable: true
 ---
 
 # Translate README
 
-Translate specified sections of a product README into a target language while keeping all Markdown structure, code fences, image references, and technical tokens exactly as they are.
+Translate the opening section of a product `README.md` — from the title through to the end of the `### Key features` block — into German and write the result to `README_DE.md`.
 
 ## Purpose
 
-Produce a locale-specific copy of a README that reads naturally to native speakers while remaining fully accurate for the technical audience. The translation must not alter any Markdown syntax, code blocks, image paths, or special placeholders such as `@variables.yaml@`.
+Produce a German variant of the product introduction that reads naturally to native speakers while remaining accurate for a technical audience. Only the marketing-facing front matter is translated; all technical sections (`## Demo`, `## Setup`, `## Components`, etc.) are left out of the output.
 
-## When to use
+## Input
 
-- When a product module has a complete `README.md` and a translated variant (e.g. `README_DE.md`) is needed.
-- When only a subset of sections must be translated (e.g. introductory and feature content, excluding demo walkthroughs and technical API reference sections).
-- When the target audience for the translated file is a mix of business stakeholders and developers who prefer to read in their native language.
-
-## Inputs
-
-- `sourceFile` (required): Path to the source `README.md` to translate. Default: `README.md` in the product module.
-- `targetLanguage` (required): The language to translate into (e.g. `German`, `French`, `Spanish`).
-- `outputFile` (required): File name for the translated output (e.g. `README_DE.md`). Written to the same directory as the source file.
-- `sections` (optional): Which top-level sections to translate. Accepts:
-  - `before:<heading>` — translate everything up to (but not including) the named heading.
-  - A comma-separated list of heading names to translate (e.g. `Key features,Setup`).
-  - `all` — translate the entire file.
-  - Default (when omitted): **preamble-only scope** — see the [Scope rule](#scope-rule) below.
-- `tone` (optional): Writing style guidance, e.g. `informal and friendly`, `formal`, `marketing`. Default: `professional`.
-
-## Scope rule
-
-This is the single canonical definition of translation scope. All Behavior steps and Acceptance checks defer to it.
-
-- **Default (sections omitted) — preamble-only**: The output contains **only** the preamble — the title, introductory description, and `### Key features` block (everything before the first `## ` heading). No `## ` section from the source appears in the output.
-- **`before:<heading>`**: The output contains the preamble plus every `## ` section that appears before `<heading>`. The boundary heading itself and everything after it must be absent.
-- **Comma-separated heading list**: The output contains exactly the listed sections, in source order. Sections not listed are absent.
-- **`all`**: The output contains every section from the source.
-
-In every case the output contains **only** in-scope content. Out-of-scope sections are never copied verbatim and never appended.
+- `productModule` (required): The product module folder name (e.g. `mattermost-connector-product`). The skill reads `README.md` from this folder and writes `README_DE.md` to the same folder.
 
 ## Output
 
-- A Markdown file at `outputFile` containing:
-  - The translated section(s) with all Markdown formatting preserved.
-  - Any sections that were **not** selected for translation copied verbatim from the source.
-  - A comment header at the top of the file indicating the source file, target language, and the date of generation.
+- `README_DE.md` written to `<productModule>/README_DE.md`.
+- Scope: **title + introductory description + `### Key features` block only** — everything from the first line of `README.md` up to and including the last bullet under `### Key features`. Nothing after that block appears in the output.
+- Tone: **informal, friendly, and professional** — use `du`/`dein`, short sentences, and avoid jargon.
+- Target language: **German**.
 
 ## Behavior / Steps
 
-1. **Read the source file** from `sourceFile`. Parse it into top-level sections by splitting on level-2 headings (`## `). The content before the first `## ` heading (title, description, key features) is treated as the "preamble" section.
+1. **Locate the source file**: `<productModule>/README.md`. Fail with a clear error if the file does not exist.
 
-2. **Determine the translation scope** using the `sections` parameter as defined in the [Scope rule](#scope-rule).
+2. **Extract the translation scope**:
+   - Start at line 1 (the `# Product Name` heading).
+   - End at the last line of the `### Key features` bullet list (the line immediately before the first `## ` heading).
+   - Everything from the first `## ` heading onward is out of scope and must not appear in the output.
 
-3. **Translate each in-scope section** according to the following rules:
-   - Use the `targetLanguage` and `tone` to guide the translation.
-   - **Preserve verbatim** (do not translate or alter):
-     - Fenced code blocks (``` ``` ` ... ` ``` ```) and their content, including `@variables.yaml@` and any XML/YAML snippets.
-     - Inline code spans (`` `like this` ``).
-     - Image markdown: `![alt text](path)` — keep path unchanged; the alt text **may** be translated.
-     - URLs and hyperlink targets `[text](url)` — translate the link text, keep the URL.
-     - Markdown heading markers (`#`, `##`, `###`), bold/italic markers (`**`, `_`), table delimiters (`|`, `---`).
-     - HTML comments.
-   - **Translate**:
-     - All prose, bullet point text, table cell content (excluding code), and heading label text.
-     - Alt text of images (the part inside `![…]`).
-     - Link display text (the part inside `[…]` before the URL).
+3. **Translate the extracted content** into German, following these rules:
 
-4. **Apply tone guidance**:
-   - `informal and friendly`: use `du`/`dein` (German), `tu`/`ton` (French), or the equivalent second-person informal form. Prefer short sentences. Avoid overly technical jargon in prose sections.
-   - `formal`: use the polite form (`Sie`/`Ihr` in German). Keep a neutral, documentation-style register.
-   - `marketing`: use upbeat, benefit-oriented language. Lead with value propositions. Avoid passive voice.
-   - `professional` (default): balanced register — clear, accurate, and approachable.
+   **Preserve verbatim (do not translate or alter):**
+   - Inline code spans: `` `like this` ``
+   - Fenced code blocks and their entire content.
+   - Image paths inside `![…](path)` — keep the path byte-for-byte identical.
+   - Hyperlink URLs inside `[…](url)` — keep the URL unchanged.
+   - Markdown structural markers: `#`, `##`, `###`, `**`, `_`, `|`, `---`.
+   - HTML comments.
 
-5. **Assemble the output file**:
-   - Add a comment header at the very top:
-     ```html
-     <!-- Translated from README.md | Language: <targetLanguage> | Generated: <date> -->
-     ```
-   - Write translated sections in their original order.
-   - Include only in-scope content per the [Scope rule](#scope-rule). Out-of-scope sections must not appear.
-   - Write the result to `outputFile` in the same directory as `sourceFile`.
+   **Translate:**
+   - All prose and bullet point text.
+   - Heading label text (e.g. `### Key features` → `### Wichtigste Funktionen`).
+   - Image alt text (the `…` inside `![…]`).
+   - Link display text (the `…` inside `[…](url)`).
 
-6. **Validate** before writing:
-   - Confirm that no fenced code block content was altered.
-   - Confirm that no image paths were changed.
-   - Confirm the output matches the [Scope rule](#scope-rule) for the selected `sections` value.
-   - Recommended: run `scripts/verify-translation.sh <sourceFile> <outputFile> [--before "## Heading"]` to assert byte-for-byte equality of fenced code blocks, image URLs, hyperlink URLs, and inline code spans within the in-scope range.
+4. **Apply tone**:
+   - Use `du`/`dein` (informal second person) throughout.
+   - Keep sentences short and direct.
+   - Lead bullet points with a strong verb or benefit.
+   - Avoid passive voice and overly technical jargon in prose.
+   - Maintain a professional register — friendly but not casual.
 
-## Quality criteria / Acceptance checks
+5. **Assemble and write the output file**:
 
-- The output file exists at the expected path.
-- The output content matches the [Scope rule](#scope-rule) for the selected `sections` value.
-- Code fences and their content are byte-for-byte identical to the source.
-- Image `src` paths are unchanged; alt text is translated where applicable.
-- The translation reads naturally in the target language with the requested tone — avoid literal word-for-word translations that sound unnatural.
-- No section is accidentally duplicated or omitted from the intended scope.
-- The comment header is present at the top of the output file.
-- `scripts/verify-translation.sh` exits with status 0 (use `--before "## Heading"` for `before:<heading>` scope, or omit the flag for `all`).
+   - Follow immediately with the translated content (title, description, `### Key features`).
+   - Nothing else — no `## Demo`, `## Setup`, or any other section.
+   - Write to `<productModule>/README_DE.md`. If the file already exists, overwrite it.
 
-## Example invocation
+## Quality criteria
 
-Translate everything before `## Demo` into German with an informal tone and write to `README_DE.md`:
-
-```
-sections: before:## Demo
-targetLanguage: German
-tone: informal and friendly
-sourceFile: open-weather-connector-product/README.md
-outputFile: README_DE.md
-```
+- `README_DE.md` exists at the correct path.
+- Content covers exactly: title + description + `### Key features` — nothing more, nothing less.
+- No inline code span, image path, URL, or fenced code block was altered.
+- The German text reads naturally with `du`/`dein` and short, benefit-led bullet points.
