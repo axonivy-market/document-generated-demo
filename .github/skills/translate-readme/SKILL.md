@@ -28,8 +28,19 @@ Produce a locale-specific copy of a README that reads naturally to native speake
   - `before:<heading>` — translate everything up to (but not including) the named heading.
   - A comma-separated list of heading names to translate (e.g. `Key features,Setup`).
   - `all` — translate the entire file.
-  - Default (when omitted): translate only the preamble (title, description, and `### Key features` block) — everything before the first `## ` section heading. Do **not** include any `## ` sections in the output.
+  - Default (when omitted): **preamble-only scope** — see the [Scope rule](#scope-rule) below.
 - `tone` (optional): Writing style guidance, e.g. `informal and friendly`, `formal`, `marketing`. Default: `professional`.
+
+## Scope rule
+
+This is the single canonical definition of translation scope. All Behavior steps and Acceptance checks defer to it.
+
+- **Default (sections omitted) — preamble-only**: The output contains **only** the preamble — the title, introductory description, and `### Key features` block (everything before the first `## ` heading). No `## ` section from the source appears in the output.
+- **`before:<heading>`**: The output contains the preamble plus every `## ` section that appears before `<heading>`. The boundary heading itself and everything after it must be absent.
+- **Comma-separated heading list**: The output contains exactly the listed sections, in source order. Sections not listed are absent.
+- **`all`**: The output contains every section from the source.
+
+In every case the output contains **only** in-scope content. Out-of-scope sections are never copied verbatim and never appended.
 
 ## Output
 
@@ -42,11 +53,7 @@ Produce a locale-specific copy of a README that reads naturally to native speake
 
 1. **Read the source file** from `sourceFile`. Parse it into top-level sections by splitting on level-2 headings (`## `). The content before the first `## ` heading (title, description, key features) is treated as the "preamble" section.
 
-2. **Determine the translation scope** using the `sections` parameter:
-   - If `before:<heading>` is specified, collect the preamble and all sections that appear before `<heading>`. The `<heading>` section and everything after it are out of scope.
-   - If a heading list is given, only those named sections (and the preamble if `preamble` is listed) are in scope.
-   - If `sections` is set to `all`, the entire file is in scope.
-   - **Default (sections omitted)**: scope is limited to the preamble only — the title, introductory description, and `### Key features` block (everything before the first `## ` section heading). All `## ` sections are excluded from the output entirely.
+2. **Determine the translation scope** using the `sections` parameter as defined in the [Scope rule](#scope-rule).
 
 3. **Translate each in-scope section** according to the following rules:
    - Use the `targetLanguage` and `tone` to guide the translation.
@@ -74,28 +81,25 @@ Produce a locale-specific copy of a README that reads naturally to native speake
      <!-- Translated from README.md | Language: <targetLanguage> | Generated: <date> -->
      ```
    - Write translated sections in their original order.
-   - **Do not append out-of-scope sections** — regardless of whether the default scope (preamble only) or `before:<heading>` is used. The output file contains **only** the translated in-scope content. Never copy verbatim or append sections that fall outside the specified scope.
-   - When `sections` is set to `all` or a comma-separated heading list, only the explicitly listed sections appear in the output; all other sections are omitted.
+   - Include only in-scope content per the [Scope rule](#scope-rule). Out-of-scope sections must not appear.
    - Write the result to `outputFile` in the same directory as `sourceFile`.
 
 6. **Validate** before writing:
    - Confirm that no fenced code block content was altered.
    - Confirm that no image paths were changed.
-   - When using default scope, confirm that the output contains **only** the preamble (no `## ` section headings from the source are present).
-   - When using `before:<heading>` scope, confirm that the output does **not** contain the boundary heading or any section after it.
-   - When using a heading-list scope, confirm that the number of top-level sections in the output matches the number of listed headings.
+   - Confirm the output matches the [Scope rule](#scope-rule) for the selected `sections` value.
+   - Recommended: run `scripts/verify-translation.sh <sourceFile> <outputFile> [--before "## Heading"]` to assert byte-for-byte equality of fenced code blocks, image URLs, hyperlink URLs, and inline code spans within the in-scope range.
 
 ## Quality criteria / Acceptance checks
 
 - The output file exists at the expected path.
-- When using default scope: the output contains **only** the preamble (title, description, key features) — no `## Demo`, `## Setup`, `## Components`, or other `## ` sections are present.
-- When using `before:<heading>` scope: the output contains **only** the in-scope content — the boundary heading and all subsequent sections are absent.
-- When using a heading-list scope: all expected headings are present in the same order as the source.
+- The output content matches the [Scope rule](#scope-rule) for the selected `sections` value.
 - Code fences and their content are byte-for-byte identical to the source.
 - Image `src` paths are unchanged; alt text is translated where applicable.
 - The translation reads naturally in the target language with the requested tone — avoid literal word-for-word translations that sound unnatural.
 - No section is accidentally duplicated or omitted from the intended scope.
 - The comment header is present at the top of the output file.
+- `scripts/verify-translation.sh` exits with status 0 (use `--before "## Heading"` for `before:<heading>` scope, or omit the flag for `all`).
 
 ## Example invocation
 

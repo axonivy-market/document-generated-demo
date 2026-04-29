@@ -52,17 +52,16 @@ Behavior / Steps
    - Public API, exported services, SPI implementations and notable classes in `src/`.
    - Derive the "Key features" list (3–8 concise bullets) only from this main module — do not include demo-only artifacts here.
    - **CALL SUBAGENT: callable-sub-listing** — Pass the main module's process files (processes/*.p.json). **Directly inject the output of this subagent into the `## Components` section using a placeholder of `{{callableSubSection}}`. Do not reformat or summarize; use the subagent's output verbatim.**
-   - **CALL SUBAGENT: form-components-summary** — Pass the main module path. **Directly inject the output of this subagent into the `## Components` section using a placeholder such as `{{formComponentSection}}`. Do not reformat or summarize; use the subagent's output verbatim.**
+   - **CALL SUBAGENT: form-components-listing** — Pass the main module path. **Directly inject the output of this subagent into the `## Components` section using a placeholder such as `{{formComponentSection}}`. Do not reformat or summarize; use the subagent's output verbatim.**
    - Mandatory configuration definitions in `config/`:
        - Existing role from `roles.xml` (do not include default "Everyone" role) which could be mentioned in the component section of the README.
-       - Rest client name and existing open api spec section from `rest-clients.yaml` which will be used for `{{openApiSection}}` in the Components section.
+       - Extract `OpenAPI.SpecUrl` from `rest-clients.yaml`. If `SpecUrl` is Local-only values (e.g. `file:///...`), do not include in README. If it points to an external URL, include it in the `{{openApiSection}}` section with a note that it's an OpenAPI resource.
 6. Inspect demo module(s) for user flows (step lists) and demo-only assets:
    - Find process definitions and any CMS or webContent pages used by the demo.
    - Translate sequence of demo processes into a step-by-step user workflow for the `## Demo` section.
    - Include sample docker setup or provided example deployments only in the `## Demo` section (do not list them as Key features).
 7. Inspect product module for Maven artifacts:
    - **CALL SUBAGENT: maven-artifact-listing** — Pass the product module's `product.json` path and the root `pom.xml` path. The `maven-artifact-listing` subskill returns a list of artifacts with Maven dependency declarations. Insert the returned content verbatim at the `{{mavenArtifactSection}}` placeholder. Do not add additional formatting or change punctuation — inject the subskill output unchanged.
-   -  **CALL SUBAGENT: open-api-resource-listing** — Pass the product
 8. Collect available images from the product module:
    - **CALL SUBAGENT: product-image-summary** — Pass the product module directory name (e.g. `open-weather-connector-product`). The subagent returns a catalog of images grouped by subdirectory with suggested alt-text and ready-to-copy markdown snippets.
    - Each image entry includes a `> Suggested readme placement` hint (e.g. `## Demo`, `## Setup`, `## Components`). Use this hint to decide which README section the image belongs in.
