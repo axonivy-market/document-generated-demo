@@ -5,7 +5,7 @@ argument-hint: '[optional: path-glob for process files]'
 user-invocable: true
 ---
 
-# MS Graph Callable Sub Listing
+# Callable Sub Listing
 
 Generate a repeatable documentation listing from process files where:
 - process kind is CALLABLE_SUB
