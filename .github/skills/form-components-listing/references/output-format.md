@@ -1,15 +1,13 @@
 # Output Format Reference
 
-This document defines the concise dialogs-only markdown schema that the `form-components-listing` skill must return.
+The `form-components-listing` skill must return a **concise dialogs-only markdown list**. One block per UI dialog, in this exact field order:
 
-For each UI dialog the skill should emit a short block with these fields in this order:
+- `UI dialog name`: friendly identifier (folder or view name).
+- `namespace`: fully-qualified namespace from `.p.json` or `.d.json`; otherwise `(unknown)`.
+- `start parameter`: declared process start parameter or method signature used to open the dialog; `(none)` when absent.
+- `main feature/logic`: one-to-two line summary of the dialog's primary user-facing purpose. Describe what the user can **do** in the dialog (e.g. "allows filtering by date and exporting CSV", "opens process viewer and lets user navigate task timeline"). Infer from process descriptions, nested components, or adjacent JavaScript — do not list raw component names.
 
-- `UI dialog name`: a friendly identifier (folder or view name).
-- `namespace`: fully-qualified namespace, if available from `.p.json` or `.d.json` files; otherwise `(unknown)`.
-- `start parameter`: the declared process start parameter or method signature used to open the dialog; `(none)` when absent.
-- `main feature/logic`: a one- to two-line summary describing the dialog's primary purpose or behavior. This should be inferred from process descriptions, nested components, or adjacent JavaScript files — do not list components themselves.
-
-Example
+## Example
 
 ```
 UI dialog name: ViewNotPermittedPage
@@ -18,19 +16,9 @@ UI dialog name: ViewNotPermittedPage
 - main feature/logic: Informational page shown when the user lacks access rights; displays reason and link to request permission.
 ```
 
-Notes
-- The format is intentionally compact and human-readable for marketing-style summaries.
-- Implementations should treat input paths generically; do not hardcode module names.
-# Output Format
+## Rules
 
-The generated report is Markdown.
-
-## Sections
-- One section per form directory:
-  - `#### <UI form component name>`
-- Under each component:
-  - one bullet per criteria:
-    - `Namespace`
-    - `Component type`
-    - `Parameter`: list of available parameter (if exist), its type class, and default value.
-    - `Main logic/feature included in that UI`: some main features that UI can execute which is extracted via UI process, its managedbean, and additional javascript.
+- Format is intentionally compact and human-readable for README integration.
+- Do not use the full component listing / raw scanner schema (with `Component type`, `Parameter` fields) — that is scanner-internal output only.
+- Treat input paths generically; do not hardcode module names.
+- Prefer action-oriented summaries over technical metadata in `main feature/logic`.

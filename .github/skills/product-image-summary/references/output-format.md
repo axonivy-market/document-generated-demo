@@ -1,53 +1,19 @@
 # Image Catalog Output Format Reference
 
-## Output Structure
+The catalog script produces one entry per image. When placing images in the README, only the per-image entry structure matters — all header/summary/category wrapper sections are informational and produced by the script.
 
-The image catalog skill generates a structured markdown report with the following sections:
-
-### 1. Header & Metadata
-
-```markdown
-# Image Catalog for Documentation
-
-Generated: 2026-04-24 10:30:15
-Project: ./my-project
-Filter: all
-```
-
-### 2. Summary Section
-
-```markdown
-## Summary
-
-- **Total images found:** 12
-- **Screenshots:** 5
-- **Diagrams:** 4
-- **Animations:** 2
-- **Icons:** 1
-- **Other:** 0
-```
-
-### 3. Category Sections
-
-Each category (Screenshots, Diagrams, Animations, Icons, Other) is displayed with its count.
-
-### 4. Per-Image Entry Structure
-
-Each image gets a detailed entry:
+## Per-Image Entry Structure
 
 ```markdown
 ### [Image Description]
 
 - **File:** `relative/path/to/image.png`
-- **Size:** 145 KB | **Dimensions:** 1280×960px
 - **Suggested alt-text:** Descriptive text for accessibility
 
-**Markdown snippet (ready to copy):**
-\`\`\`markdown
-![Descriptive text for accessibility](relative/path/to/image.png)
-\`\`\`
+> Suggested readme placement: ## Demo — step 2
 
----
+**Markdown snippet:**
+![Descriptive text for accessibility](relative/path/to/image.png)
 ```
 
 ## Field Descriptions

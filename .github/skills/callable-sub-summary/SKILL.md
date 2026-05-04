@@ -19,11 +19,11 @@ The summary must be grouped by what a workflow team can actually do with the cal
 - Optional prose output file path. Default: stdout
 
 ## Procedure
-1. Run the prose summary script (it reuses the JSON extractor internally):
-   - bash ./.github/skills/callable-sub-summary/scripts/list-callable-sub-starts-json.sh
+1. Run the summary script:
+   - `bash ./.github/skills/callable-sub-summary/scripts/summarize-callable-sub-capabilities.sh`
 2. For file output, run:
-   - bash ./.github/skills/callable-sub-summary/scripts/list-callable-sub-starts-json.sh './**/*.p.json' docs/callable-sub-capabilities-summary.txt
-3. Inspect the generated callable-sub capability output and summarize it in marketing language.
+   - `bash ./.github/skills/callable-sub-summary/scripts/summarize-callable-sub-capabilities.sh './**/*.p.json' docs/callable-sub-capabilities-summary.txt`
+3. The script outputs structured prose. Present it directly or use it as the basis for the output format below.
 
 ## Output Rules
 

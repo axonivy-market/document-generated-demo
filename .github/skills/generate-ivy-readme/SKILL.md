@@ -16,7 +16,6 @@ When to use
 Inputs
 ------
 - `workspacePath` (optional): path to repository root. Default: current workspace.
-- `pomPath` (optional): path to root `pom.xml` for version extraction. Default: `pom.xml` in workspace root.
 - `module` (optional): explicit module name to treat as the main module.
 
 Configuration defaults
@@ -55,10 +54,11 @@ Behavior / Steps
 3. Pick the main module: prefer a module that is not `-demo`, `-test`, or `-product`. If the only non-test module is a `-demo` module,
 treat it as the main module (note in the README that callable subs and form components may carry a demo context).
 
-4. Check for an existing `README.md` in the product module. If it exists, read it and parse each top-level `## ` heading into a map of `section → current content`.
-Carry this map forward; additions are appended automatically to their sections, while proposed removals are flagged and require explicit user confirmation before deletion. When no confirmation is available, no deletions are performed and proposed-change files are written for review.
+4. Check for an existing `README.md` in the product module. If it exists, read it and parse each top-level `## ` heading into a map of `section → current content`. Apply the merge behavior defined in the **Output** section above.
 
 5. **DISCOVERY PHASE** — run sub-tasks 5a–5f and collect all outputs before assembling.
+   - **Script-backed** (5b, 5c, 5e, 5f): invoke via `APPLY SKILL`, inject stdout verbatim into the named placeholder (see Sub-skill protocol above).
+   - **AI-inspection** (5a, 5d): read source files directly and write content — no script, no verbatim injection.
 
    | Step | Input source | Action | Placeholder |
    |------|-------------|--------|-------------|
@@ -66,7 +66,7 @@ Carry this map forward; additions are appended automatically to their sections, 
    | 5b | Main module `processes/*.p.json` | APPLY SKILL: `callable-sub-listing` | `{{callableSubSection}}` |
    | 5c | Main module `<main-module>/src_hd` | APPLY SKILL: `form-components-listing` | `{{formComponentSection}}` |
    | 5d | Demo module(s) processes | Inspect (details below) | `## Demo` content |
-   | 5e | Product module `product.json` + root `pom.xml` | APPLY SKILL: `maven-artifact-listing` | `{{mavenArtifactSection}}` |
+   | 5e | Product module `product.json` | APPLY SKILL: `maven-artifact-listing` | `{{mavenArtifactSection}}` |
    | 5f | Product module directory name | APPLY SKILL: `product-image-summary` | Image catalog (used in step 6) |
 
    **5a — Key features & configuration:**

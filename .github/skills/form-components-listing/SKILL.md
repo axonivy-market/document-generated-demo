@@ -36,6 +36,3 @@ The scanner is module-agnostic; pass any `src_hd` directory or top-level UI fold
 Notes:
 - The skill accepts an optional input path (module or UI tree) and is not tied to a specific module name; callers may pass any module or top-level UI folder.
 - For full component listings or raw scan output, use the scanner script directly (see the "Generated report" section above).
-Additional guidance for `main feature/logic`:
-- The `main feature/logic` field should describe user-facing actions or interactions available in the dialog (for example: "allows filtering by date and exporting CSV", "opens process viewer and lets user navigate task timeline").
-- Prefer short action-oriented summaries (one or two lines) rather than raw technical metadata.
