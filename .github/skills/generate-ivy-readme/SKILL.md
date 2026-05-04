@@ -35,7 +35,12 @@ For every **APPLY SKILL: `<name>`** instruction in the steps below:
 Output
 ------
 - **If `README.md` does not exist** in the product module: generate it in full and write it there.
-- **If `README.md` already exists**: append-only merge — parse each `## ` section into a map, identify items absent from the existing content, and append only those. Never remove or rewrite existing lines.
+- **If `README.md` already exists**: parse each top-level `## ` heading into a map of `section → current content`. Compare generated content to the existing README and compute two change sets:
+
+   - **Additions:** items present in the generated output but absent from the existing README. These additions will be appended automatically to the relevant sections.
+   - **Proposed removals:** items present in the existing README but not found in the generated content. Proposed removals are NOT applied automatically. The skill will present a summary of proposed removals and ask the user to confirm each deletion before applying it.
+
+If the skill is run non-interactively (no confirmation channel), it will not perform deletions. Instead it will write a `README.PROPOSED.md` containing the merged README with suggested removals commented, and a `README.changes.json` summarizing additions and proposed removals for manual review. The skill never silently deletes content.
 
 Behavior / Steps
 ----------------
@@ -47,9 +52,11 @@ Behavior / Steps
    - `-product` → product module (target location for `README.md` and images)
    - others → candidate main module(s)
 
-3. Pick the main module: prefer a module that is not `-demo`, `-test`, or `-product`. If the only non-test module is a `-demo` module, treat it as the main module (note in the README that callable subs and form components may carry a demo context).
+3. Pick the main module: prefer a module that is not `-demo`, `-test`, or `-product`. If the only non-test module is a `-demo` module,
+treat it as the main module (note in the README that callable subs and form components may carry a demo context).
 
-4. Check for an existing `README.md` in the product module. If it exists, read it and parse each top-level `## ` heading into a map of `section → current content`. Carry this map forward; every later write appends to the relevant bucket, never replaces.
+4. Check for an existing `README.md` in the product module. If it exists, read it and parse each top-level `## ` heading into a map of `section → current content`.
+Carry this map forward; additions are appended automatically to their sections, while proposed removals are flagged and require explicit user confirmation before deletion. When no confirmation is available, no deletions are performed and proposed-change files are written for review.
 
 5. **DISCOVERY PHASE** — run sub-tasks 5a–5f and collect all outputs before assembling.
 
@@ -64,18 +71,28 @@ Behavior / Steps
 
    **5a — Key features & configuration:**
    - Derive 3–8 concise, marketing-oriented Key features bullets from public API, services, and exported classes in `src/`. Main module only — no demo-only artifacts.
-   - From `config/roles.xml`: note any roles other than "Everyone" for the `## Setup` section.
+   - From `config/roles.xml`: note any roles other than "Everyone" for the `## Setup` section. If "Everyone" is the only role, omit the roles section entirely.
    - From `config/rest-clients.yaml`: if `OpenAPI.SpecUrl` is an external URL (`http://` or `https://`), include it in `{{openApiSection}}`; skip `file:///` values.
+   If there are no external URLs, omit the OpenAPI section entirely.
 
    **5d — Demo workflows:**
+   - Tone: friendly and professional, and simple enough for non-technical stakeholders to understand the value, use cases, and how to reproduce the demo.
+   Avoid excessive technical jargon in the demo descriptions.
    - Translate demo process sequences into step-by-step user workflows for `## Demo`.
+   - Each workflow must follow this structure:
+     1. **Start**: Name the process to launch, using the friendly name from the `RequestStart` element (not the internal process file name).
+     2. **What happens**: Describe what the user will see or experience — which dialog or form opens, what information is displayed.
+     3. **Interact**: Describe which features the user can interact with (e.g., fill in fields, trigger actions, see results).
+     4. **Docker note** (if applicable): If a Docker image or example deployment is provided for demo purposes, mention it in the last sentence of the workflow description.
+   - Each step should be concise and focused on the user action or observable outcome, rather than internal technical details.
    - Docker/example deployments go in `## Demo` only — not in Key features.
 
    **5f — Image catalog:**
    - Skip silently if no `images/` directory exists in the product module.
    - Image paths from the catalog use the form `<product-module>/images/…`. Strip the leading `<product-module>/` prefix so all paths start with `images/` before using them.
 
-6. Assemble the README from all collected outputs. For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section, then insert its markdown snippet (`![alt](images/…)`) immediately after the step/ paragraph/ content it illustrates. Do not create a isolated image section.
+6. Assemble the README from all collected outputs. For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section,
+then insert its markdown snippet (`![alt](images/…)`) immediately after the step/ paragraph/ content it illustrates. Do not create a isolated image section.
 
 7. Replace `{{variableSection}}` with this exact fenced block (preserve the backticks literally in the output file):
 
@@ -90,6 +107,6 @@ Invariants
 - Heading order: product name → `### Key features` → `## Demo` → `## Setup` → `## Components`.
 - Sub-skill output injected verbatim — never reformatted (see Sub-skill protocol).
 - Image paths normalized to `images/…` (relative to product module) before insertion.
-- Merge is additions-only: a diff of output vs. original must show only added lines, no deletions or modifications.
+- Merge behavior: additions are applied automatically; deletions require explicit user confirmation. When no confirmation is available, no deletions are performed and proposed-change files (`README.PROPOSED.md` and `README.changes.json`) are produced for review.
 - A translated file (`README_DE.md` by default) must exist after the skill completes.
 - Key features: 3–8 bullets, marketing language, main module only — no technical jargon.

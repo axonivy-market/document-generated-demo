@@ -1,7 +1,7 @@
 ---
 name: maven-artifact-listing
 description: Extract maven artifacts from an Axon Ivy product.json file and generate a clean list with sequential numbering and Maven dependency XML snippets.
-argument-hint: '<product.json path> [pom.xml path] [output file]'
+argument-hint: '<product.json path> [output file]'
 user-invocable: true
 ---
 
@@ -12,7 +12,6 @@ Generate a clean Maven artifact listing from Axon Ivy product.json files with se
 ## Inputs
 
 - **Required:** Path to `product.json` file (e.g., `docuware-connector-product/product.json`)
-- **Optional:** Path to `pom.xml` file to extract version. If version is snapshot (e.g., `1.0.0-SNAPSHOT`), it is converted to release version (`1.0.0`)
 - **Optional:** Output file path. If omitted, output prints to stdout
 
 ## Features
@@ -33,19 +32,14 @@ For each artifact, generates:
 
 ## Usage
 
-### Print to stdout (without version extraction)
+### Print to stdout
 ```bash
 bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path}
 ```
 
-### Extract version from pom.xml and print to stdout
+### Write to file
 ```bash
-bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} pom.xml
-```
-
-### Write to file and extract version from pom.xml
-```bash
-bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} pom.xml {output file}
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} {output file}
 ```
 
 ## Output Format
