@@ -40,27 +40,21 @@ fi
 
 # Render report to stdout first, then optionally write to file.
 {
-  echo
-
-  callable_count=0
-
   for file in "${files[@]}"; do
     kind=$(jq -r '.kind // empty' "$file")
     if [[ "$kind" != "CALLABLE_SUB" ]]; then
       continue
     fi
 
-    callable_count=$((callable_count + 1))
-
-    echo "#### $file"
-
+    # Count matching entries BEFORE printing the file header.
+    # Files with no connector-tagged CallSubStart are skipped entirely.
     start_count=$(jq '[.elements[]? | select(.type == "CallSubStart" and (((.tags // []) | map(if type == "string" then ascii_downcase else "" end)) | index("connector")))] | length' "$file")
 
     if [[ "$start_count" -eq 0 ]]; then
-      echo "- No CallSubStart with tag connector"
-      echo
       continue
     fi
+
+    echo "#### $file"
 
     jq -r '
       .elements[]?
@@ -85,10 +79,8 @@ fi
 
     echo
   done
-
-  if [[ "$callable_count" -eq 0 ]]; then
-    echo "No CALLABLE_SUB process files found."
-  fi
+  # If no files matched the filter, stdout is empty.
+  # Callers treat empty output as "no connector-tagged callable subs" and omit the section entirely.
 } | if [[ -n "$OUTPUT_FILE" ]]; then
       mkdir -p "$(dirname "$OUTPUT_FILE")"
       tee "$OUTPUT_FILE"

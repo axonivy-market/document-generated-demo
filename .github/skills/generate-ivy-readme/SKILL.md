@@ -107,7 +107,7 @@ then insert its markdown snippet (`![alt](images/…)`) immediately after the st
 
 Invariants
 ----------
-- Heading order should follow the schema from `output-format.md`. If a section has no content, it is omitted entirely (e.g., if there are no form components, the `### Form components` section is not included at all).
+- Heading order should follow the schema from `output-format.md`. If a section has no content, it is omitted entirely (e.g., if there are no form components, the `### Form components` section is not included at all; if `{{callableSubSection}}` is empty, the `### Exposed CALLABLE_SUB processes` heading is also omitted).
 - Sub-skill output injected verbatim — never reformatted (see Sub-skill protocol).
 - Image paths normalized to `images/…` (relative to product module) before insertion.
 - Merge behavior: additions are applied automatically; deletions require explicit user confirmation. When no confirmation is available, no deletions are performed and proposed-change files (`README.PROPOSED.md` and `README.changes.json`) are produced for review.
