@@ -1,7 +1,7 @@
 ---
 name: maven-artifact-listing
 description: Extract maven artifacts from an Axon Ivy product.json file and generate a clean list with sequential numbering and Maven dependency XML snippets.
-argument-hint: 'path to product.json file'
+argument-hint: '<product.json path> [pom.xml path] [output file]'
 user-invocable: true
 ---
 
@@ -28,7 +28,8 @@ For each artifact, generates:
 
 ## Prerequisites
 
-- `jq` command-line JSON processor (install via `apt install jq` on Linux/WSL, `brew install jq` on macOS, or `choco install jq` on Windows)
+- `jq` must be installed. The script exits with a clear error if it is not found.
+  Install: `apt install jq` (Linux/WSL) | `brew install jq` (macOS) | `choco install jq` (Windows)
 
 ## Usage
 

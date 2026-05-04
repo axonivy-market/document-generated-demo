@@ -16,6 +16,8 @@ Given the exact project directory name, auto-discover its `images/` subdirectory
 
 ## Usage
 
+Use `.ps1` on Windows, `.sh` on Linux/macOS/WSL. Both scripts produce identical output.
+
 ```bash
 # Bash (Linux/macOS/WSL)
 bash ./.github/skills/product-image-summary/scripts/catalog-images.sh open-weather-connector-product [output.md]

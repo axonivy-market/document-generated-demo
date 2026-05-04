@@ -17,15 +17,15 @@ Generate a repeatable documentation listing from process files where:
 - Optional output file path. If omitted, print to stdout
 
 ## Procedure
-1. Ensure `jq` is available.
-2. Run the listing script:
+1. Run the listing script (exits with a non-zero code and clear error message if `jq` is not found):
    - `bash ./.github/skills/callable-sub-listing/scripts/list-callable-sub-starts.sh`
-3. For docs output, write to a file:
+2. For docs output, write to a file:
    - `bash ./.github/skills/callable-sub-listing/scripts/list-callable-sub-starts.sh './**/*.p.json' docs/callable-sub-starts.md`
-4. Copy the generated Markdown section into product docs as needed.
 
-## Output Shape
-The script outputs Markdown grouped by process file and includes:
+## Output
+**Stdout:** verbatim Markdown grouped by process file. When invoked by a parent skill, inject this output directly into the target placeholder without reformatting.
+
+Each entry includes:
 - signature
 - input (params)
 - result (params)
