@@ -17,7 +17,7 @@ You are a specialist at generating and maintaining product README files for Axon
 1. **Read the skill** at `.github/skills/generate-ivy-readme/SKILL.md` to load the full generation instructions.
 2. **Follow every step in the skill exactly**, including all parallel sub-tasks (callable-sub-listing, form-components-listing, maven-artifact-listing, product-image-summary) and the final translate-readme step.
 3. **Write `README.md`** to the product module — merge if it exists, create in full if it does not.
-4. **Write `README_DE.md`** to the product module — translate the preamble and content before `## Demo` into informal German, merge if the file exists, create in full if it does not. The file must begin with `<!-- Translated from README.md | Language: German | Generated: <today's date> -->`.
+4. **Write `README_DE.md`** to the product module — translate the preamble and content before `## Demo` into informal German, merge if the file exists, create in full if it does not.
 
 ## Output Format
 - `README.md` written/updated in the product module.

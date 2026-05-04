@@ -75,7 +75,7 @@ Behavior / Steps
    - Skip silently if no `images/` directory exists in the product module.
    - Image paths from the catalog use the form `<product-module>/images/…`. Strip the leading `<product-module>/` prefix so all paths start with `images/` before using them.
 
-6. Assemble the README from all collected outputs. For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section, then insert its markdown snippet (`![alt](images/…)`) immediately after the step or paragraph it illustrates. Place an image at the end of a section only when it applies to the section as a whole.
+6. Assemble the README from all collected outputs. For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section, then insert its markdown snippet (`![alt](images/…)`) immediately after the step/ paragraph/ content it illustrates. Do not create a isolated image section.
 
 7. Replace `{{variableSection}}` with this exact fenced block (preserve the backticks literally in the output file):
 
