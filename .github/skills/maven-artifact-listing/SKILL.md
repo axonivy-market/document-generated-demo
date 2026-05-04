@@ -16,14 +16,18 @@ Generate a clean Maven artifact listing from Axon Ivy product.json files with se
 
 ## Features
 
-Extracts artifacts from all installer types:
-- **maven-dependency** – Dependencies array
-- **maven-import** – Projects array  
-- **maven-dropins** – Dropins array
+Extracts artifacts from all installer types and outputs them in a consistent order:
+
+1. **Required dependencies** – `maven-dependency` installer artifacts (always required)
+2. **Required imports** – `maven-import` projects where `importInWorkspace` is omitted or `true`
+3. **Optional imports** – `maven-import` projects where `importInWorkspace` is `false` (marked *(optional)*)
+
+Artifacts whose `artifactId` ends with `test` or `product` are **excluded** from the output.
 
 For each artifact, generates:
-- Sequential number with artifact name and installer type
-- Raw XML `<dependency>` declaration with groupId, artifactId, version, and type
+- Sequential number with artifact name (installer type is **not** exposed)
+- Optional marker *(optional)* for artifacts with `importInWorkspace: false`
+- Fenced XML `<dependency>` block with groupId, artifactId, `<version>${version}</version>`, and type
 
 ## Prerequisites
 

@@ -72,18 +72,21 @@ treat it as the main module (note in the README that callable subs and form comp
    **5a — Key features & configuration:**
    - Derive 3–8 concise, marketing-oriented Key features bullets from public API, services, and exported classes in `src/`. Main module only — no demo-only artifacts.
    - From `config/roles.xml`: note any roles other than "Everyone" for the `## Setup` section. If "Everyone" is the only role, omit the roles section entirely.
-   - From `config/rest-clients.yaml`: if `OpenAPI.SpecUrl` is an external URL (`http://` or `https://`), include it in `{{openApiSection}}`; skip `file:///` values.
-   If there are no external URLs, omit the OpenAPI section entirely.
+   - From `config/rest-clients.yaml`: if `OpenAPI.SpecUrl` is an public URL (`http://` or `https://`), insert its markdown snippet (`![Rest Client Name](URL)`) in `{{openApiSection}}`.
+   If there are no public URLs, omit the OpenAPI section entirely.
+
+   **5c — Form components:**
+   - If there is no Form component, omit the section entirely.
 
    **5d — Demo workflows:**
    - Tone: friendly and professional, and simple enough for non-technical stakeholders to understand the value, use cases, and how to reproduce the demo.
    Avoid excessive technical jargon in the demo descriptions.
    - Translate demo process sequences into step-by-step user workflows for `## Demo`.
-   - Each workflow must follow this structure:
+   - Each workflow must explain step by step and follow this structure:
      1. **Start**: Name the process to launch, using the friendly name from the `RequestStart` element (not the internal process file name).
      2. **What happens**: Describe what the user will see or experience — which dialog or form opens, what information is displayed.
      3. **Interact**: Describe which features the user can interact with (e.g., fill in fields, trigger actions, see results).
-     4. **Docker note** (if applicable): If a Docker image or example deployment is provided for demo purposes, mention it in the last sentence of the workflow description.
+   - If a Docker image or example deployment is provided for demo purposes, mention it in the last sentence of the workflow description.
    - Each step should be concise and focused on the user action or observable outcome, rather than internal technical details.
    - Docker/example deployments go in `## Demo` only — not in Key features.
 
@@ -104,9 +107,10 @@ then insert its markdown snippet (`![alt](images/…)`) immediately after the st
 
 Invariants
 ----------
-- Heading order: product name → `### Key features` → `## Demo` → `## Setup` → `## Components`.
+- Heading order should follow the schema from `output-format.md`. If a section has no content, it is omitted entirely (e.g., if there are no form components, the `### Form components` section is not included at all).
 - Sub-skill output injected verbatim — never reformatted (see Sub-skill protocol).
 - Image paths normalized to `images/…` (relative to product module) before insertion.
 - Merge behavior: additions are applied automatically; deletions require explicit user confirmation. When no confirmation is available, no deletions are performed and proposed-change files (`README.PROPOSED.md` and `README.changes.json`) are produced for review.
 - A translated file (`README_DE.md` by default) must exist after the skill completes.
 - Key features: 3–8 bullets, marketing language, main module only — no technical jargon.
+- If any section has no content (e.g., no form components, no roles, no OpenAPI URLs), that section is omitted entirely from the README.

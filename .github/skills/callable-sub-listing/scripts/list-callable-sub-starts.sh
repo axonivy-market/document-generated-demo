@@ -40,7 +40,6 @@ fi
 
 # Render report to stdout first, then optionally write to file.
 {
-  echo "# Callable Sub Connector Starts"
   echo
 
   callable_count=0
@@ -53,7 +52,7 @@ fi
 
     callable_count=$((callable_count + 1))
 
-    echo "## $file"
+    echo "#### $file"
 
     start_count=$(jq '[.elements[]? | select(.type == "CallSubStart" and (((.tags // []) | map(if type == "string" then ascii_downcase else "" end)) | index("connector")))] | length' "$file")
 
