@@ -69,7 +69,7 @@ treat it as the main module (note in the README that callable subs and form comp
 
    **5a — Key features & configuration:**
    - Derive 3–8 concise, marketing-oriented Key features bullets from public API, services, and exported classes in `src/`. Main module only — no demo-only artifacts.
-   - From `config/roles.xml`: note any roles other than "Everyone" for the `## Setup` section. If "Everyone" is the only role, omit the roles section entirely.
+   - From `config/roles.xml`: note any roles other than "Everybody" for the `## Setup` section. If "Everybody" is the only role, omit the roles section entirely.
    - From `config/rest-clients.yaml`: if `OpenAPI.SpecUrl` is an public URL (`http://` or `https://`), insert its markdown snippet (`![Rest Client Name](URL)`) in `{{openApiSection}}`.
    If there are no public URLs, omit the OpenAPI section entirely.
 
@@ -77,16 +77,22 @@ treat it as the main module (note in the README that callable subs and form comp
    - If there is no Form component, omit the section entirely.
 
    **5d — Demo workflows:**
-   - Tone: friendly and professional, and simple enough for non-technical stakeholders to understand the value, use cases, and how to reproduce the demo.
-   Avoid excessive technical jargon in the demo descriptions.
-   - Translate demo process sequences into step-by-step user workflows for `## Demo`.
-   - Each workflow must explain step by step and follow this structure:
-     1. **Start**: Name the process to launch, using the friendly name from the `RequestStart` element (not the internal process file name).
-     2. **What happens**: Describe what the user will see or experience — which dialog or form opens, what information is displayed.
-     3. **Interact**: Describe which features the user can interact with (e.g., fill in fields, trigger actions, see results).
-   - If a Docker image or example deployment is provided for demo purposes, mention it in the last sentence of the workflow description.
-   - Each step should be concise and focused on the user action or observable outcome, rather than internal technical details.
-   - Docker/example deployments go in `## Demo` only — not in Key features.
+      **Tone:** Friendly and professional; write for non-technical stakeholders. Avoid jargon — focus on value, use cases, and how to reproduce the demo.
+
+      **Writing each workflow:**
+      Translate each demo process into separated step-by-step guideline. Adapt the number of steps freely to fit the actual workflow. Each step must focus on the user action or observable outcome — not internal technical details. Cover:
+      - How to launch the process (use the friendly name from the `RequestStart` element, not the internal file name).
+      - What the user sees at each stage (view of dialogs, forms, displayed information).
+      - What the user can do at each stage (fill in fields, trigger actions, view results).
+      - If a Docker image or example deployment is available, mention it in the last step.
+
+      > Docker/example deployments belong in `## Demo` only — never in Key features.
+
+      **Merging with an existing `## Demo` section:**
+      When a `## Demo` section already exists, compare it against the freshly analyzed demo processes and apply:
+      - **Add** a new workflow for any `RequestStart` process present in the demo module but not yet documented.
+      - **Remove** any workflow for a process no longer found in the demo module (deleted or renamed).
+      - **Update** any workflow whose description no longer matches the current process flow; preserve accurate wording and rewrite only what has changed.
 
    **5f — Image catalog:**
    - Skip silently if no `images/` directory exists in the product module.
@@ -104,7 +110,7 @@ treat it as the main module (note in the README that callable subs and form comp
 
 Invariants
 ----------
-- Section and heading order must follow `output-format.md` exactly. If any section or sub-section has no content, omit it entirely — including its heading. If all `###` sub-sections under `## Components` are empty, omit `## Components` entirely.
+- Section and heading order must follow `output-format.md` exactly. If any section or sub-section has no content information that there is no relevant content in the module, omit it entirely — including its heading. If all `###` sub-sections under `## Components` are empty, omit `## Components` entirely.
 - Sub-skill output injected verbatim — never reformatted (see Sub-skill protocol).
 - Image paths normalized to `images/…` (relative to product module) before insertion.
 - A translated file (`README_DE.md` by default) must exist after the skill completes.
