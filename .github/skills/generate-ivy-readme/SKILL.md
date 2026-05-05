@@ -34,12 +34,10 @@ For every **APPLY SKILL: `<name>`** instruction in the steps below:
 Output
 ------
 - **If `README.md` does not exist** in the product module: generate it in full and write it there.
-- **If `README.md` already exists**: parse each top-level `## ` heading into a map of `section → current content`. Compare generated content to the existing README and compute two change sets:
+- **If `README.md` already exists**: parse each top-level `## ` heading into a map of `section → current content`. Compare generated content to the existing README and apply all changes directly:
 
-   - **Additions:** items present in the generated output but absent from the existing README. These additions will be appended automatically to the relevant sections.
-   - **Proposed removals:** items present in the existing README but not found in the generated content. Proposed removals are NOT applied automatically. The skill will present a summary of proposed removals and ask the user to confirm each deletion before applying it.
-
-If the skill is run non-interactively (no confirmation channel), it will not perform deletions. Instead it will write a `README.PROPOSED.md` containing the merged README with suggested removals commented, and a `README.changes.json` summarizing additions and proposed removals for manual review. The skill never silently deletes content.
+   - **Additions:** items present in the generated output but absent from the existing README are appended automatically to the relevant sections.
+   - **Removals:** items present in the existing README but not found in the generated content are removed automatically.
 
 Behavior / Steps
 ----------------
@@ -109,6 +107,5 @@ Invariants
 - Section and heading order must follow `output-format.md` exactly. If any section or sub-section has no content, omit it entirely — including its heading. If all `###` sub-sections under `## Components` are empty, omit `## Components` entirely.
 - Sub-skill output injected verbatim — never reformatted (see Sub-skill protocol).
 - Image paths normalized to `images/…` (relative to product module) before insertion.
-- Merge behavior: additions are applied automatically; deletions require explicit user confirmation. When no confirmation is available, no deletions are performed and proposed-change files (`README.PROPOSED.md` and `README.changes.json`) are produced for review.
 - A translated file (`README_DE.md` by default) must exist after the skill completes.
 - Key features: 3–8 bullets, marketing language, main module only — no technical jargon.
