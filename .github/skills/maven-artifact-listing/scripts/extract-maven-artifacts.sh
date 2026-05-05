@@ -39,43 +39,37 @@ if ! command -v jq &> /dev/null; then
   exit 1
 fi
 
+# Version processing omitted by design; versions are not included in output
+
 # Function to generate output
 generate_markdown() {
   local json_file="$1"
 
-  # Collect all artifacts in priority order:
-  #   1. maven-dependency (always required)
-  #   2. maven-import with importInWorkspace != false  (required imports)
-  #   3. maven-import with importInWorkspace == false  (optional imports)
-  # Installer type is NOT exposed in the output.
-  # Artifacts ending with 'test' are excluded.
-  # Version tag is omitted from the output.
+  # Build the output with jq - group artifacts in the desired order:
+  # 1) maven-dependency (all)
+  # 2) maven-import (importInWorkspace != false)
+  # 3) maven-import (importInWorkspace == false) -- treated as optional
+  # 4) other installers (fallback)
+  # The installer id (internal type) is NOT printed.
   jq -r '
-    [
-      # --- required dependencies (maven-dependency installer) ---
-      (.installers[] | select(.id == "maven-dependency") | .data.dependencies[]? | select(.artifactId | endswith("test") | not)) as $a |
-      { groupId: $a.groupId, artifactId: $a.artifactId, format: $a.type, optional: false }
-    ] +
-    [
-      # --- required imports (importInWorkspace omitted or true) ---
-      (.installers[] | select(.id == "maven-import") | .data.projects[]? | select(.importInWorkspace != false) | select(.artifactId | endswith("test") | not)) as $a |
-      { groupId: $a.groupId, artifactId: $a.artifactId, format: $a.type, optional: false }
-    ] +
-    [
-      # --- optional imports (importInWorkspace == false) ---
-      (.installers[] | select(.id == "maven-import") | .data.projects[]? | select(.importInWorkspace == false) | select(.artifactId | endswith("test") | not)) as $a |
-      { groupId: $a.groupId, artifactId: $a.artifactId, format: $a.type, optional: true }
-    ] |
-    to_entries[] |
-    "\(.key + 1). \(.value.artifactId)" +
-    (if .value.optional then " *(optional)*" else "" end) + "\n" +
-    "```xml\n" +
-    "<dependency>\n" +
-    "  <groupId>\(.value.groupId)</groupId>\n" +
-    "  <artifactId>\(.value.artifactId)</artifactId>\n" +
-    (if .value.format then "  <type>\(.value.format)</type>\n" else "" end) +
-    "</dependency>\n" +
-    "```\n"
+    (
+      [ .installers[] | select(.id == "maven-dependency") | .data.dependencies[]? | {artifactId: .artifactId, groupId: .groupId, format: .type, optional: false} ]
+      +
+      [ .installers[] | select(.id == "maven-import") | .data.projects[]? | {artifactId: .artifactId, groupId: .groupId, format: .type, optional: (if has("importInWorkspace") then (.importInWorkspace == false) else false end)} | select(.optional == false) ]
+      +
+      [ .installers[] | select(.id == "maven-import") | .data.projects[]? | {artifactId: .artifactId, groupId: .groupId, format: .type, optional: (if has("importInWorkspace") then (.importInWorkspace == false) else false end)} | select(.optional == true) ]
+      +
+      [ .installers[] | select(.id != "maven-dependency" and .id != "maven-import") | ( .data.dependencies[]? // .data.projects[]? // .data.dropins[]? ) | {artifactId: .artifactId, groupId: .groupId, format: .type, optional: false} ]
+    )
+    | to_entries[]
+    | (
+        "\(.key + 1). \(.value.artifactId)" + (if .value.optional then " (optional)" else "" end) + "\n" +
+        "<dependency>\n" +
+        "  <groupId>\(.value.groupId)</groupId>\n" +
+        "  <artifactId>\(.value.artifactId)</artifactId>\n" +
+        (if .value.format then "  <type>\(.value.format)</type>\n" else "" end) +
+        "</dependency>\n"
+      )
   ' "$json_file"
 }
 

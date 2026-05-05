@@ -40,26 +40,51 @@ fi
 
 # Render report to stdout first, then optionally write to file.
 {
+  echo "# Callable Sub Connector Starts"
+  echo
+
+  callable_count=0
+
   for file in "${files[@]}"; do
     kind=$(jq -r '.kind // empty' "$file")
     if [[ "$kind" != "CALLABLE_SUB" ]]; then
       continue
     fi
 
-    # Count matching entries BEFORE printing the file header.
-    # Files with no connector-tagged CallSubStart are skipped entirely.
-    start_count=$(jq '[.elements[]? | select(.type == "CallSubStart" and (((.tags // []) | map(if type == "string" then ascii_downcase else "" end)) | index("connector")))] | length' "$file")
+    # Count CallSubStart elements where tags contain "connector".
+    # Accept tags from either `.tags` or `.config.tags`, and handle string or array values.
+    start_count=$(jq '[.elements[]? |
+      select(.type == "CallSubStart" and (
+        ((.tags // .config.tags // [])
+          | (if type == "array" then . else [.] end)
+          | map(tostring)
+          | map(gsub("^\\s+|\\s+$"; "") | ascii_downcase)
+          | index("connector")
+        )
+      ))] | length' "$file")
 
+    # If no matching CallSubStart entries in this file, skip printing the file header.
     if [[ "$start_count" -eq 0 ]]; then
       continue
     fi
 
-    echo "#### $file"
+    # Count only files that contain at least one matching CallSubStart.
+    callable_count=$((callable_count + 1))
+
+    echo "## $file"
 
     jq -r '
+      def has_connector:
+        ((.tags // .config.tags // [])
+          | (if type == "array" then . else [.] end)
+          | map(tostring)
+          | map(gsub("^\\s+|\\s+$"; "") | ascii_downcase)
+          | index("connector")
+        );
+
       .elements[]?
-      | select(.type == "CallSubStart" and (((.tags // []) | map(if type == "string" then ascii_downcase else "" end)) | index("connector")))
-      | "- Signature: " + (.config.signature // "") + "\n"
+      | select(.type == "CallSubStart" and has_connector)
+      | "- Signature: " + (.config.callSignature // .config.signature // "") + "\n"
       + "  Input: "
       + (if (.config.input // .config.parameter) then
          ((((.config.input // .config.parameter).params // [])
@@ -79,8 +104,10 @@ fi
 
     echo
   done
-  # If no files matched the filter, stdout is empty.
-  # Callers treat empty output as "no connector-tagged callable subs" and omit the section entirely.
+
+  if [[ "$callable_count" -eq 0 ]]; then
+    echo "No CALLABLE_SUB process files found."
+  fi
 } | if [[ -n "$OUTPUT_FILE" ]]; then
       mkdir -p "$(dirname "$OUTPUT_FILE")"
       tee "$OUTPUT_FILE"

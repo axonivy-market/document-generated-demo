@@ -1,22 +1,13 @@
 # Output Format Reference
 
-The summary must use this structure:
+Produce one short paragraph or a small set of prose sentences, with a hard limit of 6 sentences total.
 
-**Intro:** one concise value statement describing the overall connector capability.
+Recommended content:
+1. State the overall scope (connector callable sub capabilities discovered).
+2. Mention the major capability areas found.
+3. Mention representative operations by signature names.
+4. Note input coverage in plain words (where inputs exist).
+5. Note result coverage in plain words (where results exist).
+6. Optionally add one sentence about obvious gaps or asymmetry.
 
-**What you get**
-- 4–6 bullets, each describing a concrete workflow capability (group by domain when present: calendar, mail, files, chat, todo).
-
-**At a glance**
-- 3–5 compact proof points: callable count, domain coverage, read/write mix, typed payload usage.
-
-**Expected developer experience**
-- 2–4 bullets focused on developer outcomes: integration speed, reusable orchestration patterns, fit for real workflow use cases.
-
-*Optional closing sentence:* clearly visible coverage limits only (e.g. input-only or result-only starts).
-
-## Rules
-- Total length: 10–16 lines.
-- Ground claims in detected callable starts only — no fabrication.
-- No raw JSON or code blocks in the output.
-- Action-oriented phrasing: explain what teams can build, not what the script found.
+Do not include raw mappings, code blocks, or copied JSON fragments in the prose output.

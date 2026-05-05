@@ -2,49 +2,30 @@
 
 The maven artifact listing generates a sequential numbered list with artifact details and Maven dependency declarations.
 
-## Ordering rules
-
-1. `maven-dependency` installer artifacts — always listed first (required).
-2. `maven-import` artifacts where `importInWorkspace` is omitted or `true` — required imports, listed second.
-3. `maven-import` artifacts where `importInWorkspace` is `false` — optional, listed last and marked *(optional)*.
-
-The installer type (`maven-dependency` / `maven-import`) is **not** exposed in the output.
-
 ## Format Structure
 
-- Sequential numbering: `N. artifactId` (with ` *(optional)*` suffix for optional artifacts)
-- For each artifact, a fenced XML `<dependency>` block:
-  - `<groupId>` – Maven group ID
-  - `<artifactId>` – Maven artifact ID
-  - `<type>` – Artifact format (e.g., `iar`, `jar`)
+- Sequential numbering: `N.artifactId (installer-type)`
+- For each artifact:
+  - Artifact name and installer type (maven-dependency, maven-import, or maven-dropins)
+  - Raw XML `<dependency>` declaration:
+    - `<groupId>` – Maven group ID
+    - `<artifactId>` – Maven artifact ID
+    - `<type>` – Artifact format (e.g., iar, jar)
 
 ## Example Output
 
-Given a `product.json` with a `maven-dependency` for `persistence-utils` and `maven-import` projects `persistence-utils-demo`, `persistence-utils-demo-tool`, and `persistence-utils-demo-test` (excluded — ends with `test`):
-
-1. persistence-utils
-```xml
-<dependency>
-  <groupId>com.axonivy.utils.persistence</groupId>
-  <artifactId>persistence-utils</artifactId>
-  <type>jar</type>
-</dependency>
 ```
-
-2. persistence-utils-demo
-```xml
+1.docuware-connector (maven-dependency)
 <dependency>
-  <groupId>com.axonivy.utils.persistence</groupId>
-  <artifactId>persistence-utils-demo</artifactId>
+  <groupId>com.axonivy.connector.docuware</groupId>
+  <artifactId>docuware-connector</artifactId>
   <type>iar</type>
 </dependency>
-```
 
-3. persistence-utils-demo-tool
-```xml
+2.docuware-connector-demo (maven-import)
 <dependency>
-  <groupId>com.axonivy.utils.persistence</groupId>
-  <artifactId>persistence-utils-demo-tool</artifactId>
+  <groupId>com.axonivy.connector.docuware</groupId>
+  <artifactId>docuware-connector-demo</artifactId>
   <type>iar</type>
 </dependency>
 ```
