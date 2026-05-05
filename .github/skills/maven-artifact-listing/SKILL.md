@@ -27,7 +27,7 @@ Artifacts whose `artifactId` ends with `test` or `product` are **excluded** from
 For each artifact, generates:
 - Sequential number with artifact name (installer type is **not** exposed)
 - Optional marker *(optional)* for artifacts with `importInWorkspace: false`
-- Fenced XML `<dependency>` block with groupId, artifactId, `<version>${version}</version>`, and type
+- Fenced XML `<dependency>` block with groupId, artifactId, and type
 
 ## Prerequisites
 

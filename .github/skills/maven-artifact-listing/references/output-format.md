@@ -16,7 +16,6 @@ The installer type (`maven-dependency` / `maven-import`) is **not** exposed in t
 - For each artifact, a fenced XML `<dependency>` block:
   - `<groupId>` – Maven group ID
   - `<artifactId>` – Maven artifact ID
-  - `<version>` – always `${version}` (resolved to the latest release at runtime)
   - `<type>` – Artifact format (e.g., `iar`, `jar`)
 
 ## Example Output
@@ -28,7 +27,6 @@ Given a `product.json` with a `maven-dependency` for `persistence-utils` and `ma
 <dependency>
   <groupId>com.axonivy.utils.persistence</groupId>
   <artifactId>persistence-utils</artifactId>
-  <version>${version}</version>
   <type>jar</type>
 </dependency>
 ```
@@ -38,7 +36,6 @@ Given a `product.json` with a `maven-dependency` for `persistence-utils` and `ma
 <dependency>
   <groupId>com.axonivy.utils.persistence</groupId>
   <artifactId>persistence-utils-demo</artifactId>
-  <version>${version}</version>
   <type>iar</type>
 </dependency>
 ```
@@ -48,7 +45,6 @@ Given a `product.json` with a `maven-dependency` for `persistence-utils` and `ma
 <dependency>
   <groupId>com.axonivy.utils.persistence</groupId>
   <artifactId>persistence-utils-demo-tool</artifactId>
-  <version>${version}</version>
   <type>iar</type>
 </dependency>
 ```

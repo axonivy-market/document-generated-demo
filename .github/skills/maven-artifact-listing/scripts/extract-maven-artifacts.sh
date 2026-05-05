@@ -49,7 +49,7 @@ generate_markdown() {
   #   3. maven-import with importInWorkspace == false  (optional imports)
   # Installer type is NOT exposed in the output.
   # Artifacts ending with 'test' are excluded.
-  # Version is always output as ${version} regardless of the value in product.json.
+  # Version tag is omitted from the output.
   jq -r '
     [
       # --- required dependencies (maven-dependency installer) ---
@@ -73,7 +73,6 @@ generate_markdown() {
     "<dependency>\n" +
     "  <groupId>\(.value.groupId)</groupId>\n" +
     "  <artifactId>\(.value.artifactId)</artifactId>\n" +
-    "  <version>${version}</version>\n" +
     (if .value.format then "  <type>\(.value.format)</type>\n" else "" end) +
     "</dependency>\n" +
     "```\n"
