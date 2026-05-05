@@ -1,238 +1,379 @@
-# Document Generated Demo
+# Axon Ivy Documentation Generation Skills
 
-A demonstration repository showcasing **GitHub Copilot skills** for automated documentation generation in Axon Ivy projects. This repository contains reusable skills that generate and maintain consistent, high-quality documentation for Axon Ivy marketplace products.
-
-## 📚 Available Skills
-
-### 1. **generate-ivy-readme**
-Generates comprehensive, well-structured README files for Axon Ivy products following a standardized schema.
-
-**Features:**
-- Non-technical summaries for stakeholders
-- Key features extraction from main modules
-- Demo workflows from demo modules
-- Technical setup instructions
-- Components documentation
-- Maven artifact listings
-
-**Use case:** Automated README generation for Axon Ivy marketplace products
+A curated set of **GitHub Copilot skills and agents** for automated documentation generation in [Axon Ivy](https://www.axonivy.com/) marketplace projects. Install these skills once and let AI generate, translate, and maintain consistent, high-quality product documentation directly from your source code.
 
 ---
 
-### 2. **callable-sub-listing**
-Extracts and documents CALLABLE_SUB process definitions and connector-tagged entries from Axon Ivy projects.
+## Contents
 
-**Features:**
-- Process signature extraction
-- Parameter documentation
-- Result type documentation
+- [Overview](#overview)
+- [Skills](#skills)
+- [Agents](#agents)
+- [Repository Structure](#repository-structure)
+- [Using Skills in VS Code with GitHub Copilot](#using-skills-in-vs-code-with-github-copilot)
+- [Managing Skills with skillshare](#managing-skills-with-skillshare)
+- [Contributing](#contributing)
+
+---
+
+## Overview
+
+This repository provides reusable Copilot skills and an agent mode that automate the most tedious parts of Axon Ivy product documentation:
+
+- Generating structured `README.md` files from process definitions, DataClasses, and configuration files
+- Listing callable sub-processes with full parameter signatures
+- Documenting form components and HTML dialog fields
+- Extracting Maven artifact dependencies
+- Cataloguing product screenshots and diagrams
+- Translating English README files into German
+
+Skills live in `.github/skills/` and follow the [SKILL.md](https://skillshare.runkids.cc/docs/reference/skill-format) format, making them compatible with GitHub Copilot Chat, VS Code agent mode, and any tool that understands the skillshare protocol.
+
+---
+
+## Skills
+
+### `generate-ivy-readme`
+
+Generates a complete, well-structured `README.md` (and optionally `README_DE.md`) for an Axon Ivy product module.
+
+**What it produces:**
+- Non-technical key-features summary (3–8 bullets)
+- Callable sub-process reference (via `callable-sub-listing`)
+- Form component reference (via `form-components-listing`)
+- Demo workflow descriptions
+- Setup instructions (roles, REST client configuration)
+- Maven artifact dependency snippets (via `maven-artifact-listing`)
+- OpenAPI spec links where applicable
+
+**When to use it:** After creating or significantly changing an Axon Ivy product module.
+
+**Skill file:** [.github/skills/generate-ivy-readme/SKILL.md](.github/skills/generate-ivy-readme/SKILL.md)
+
+---
+
+### `callable-sub-listing`
+
+Extracts and documents all `CALLABLE_SUB` process definitions from Axon Ivy `.p.json` files, including connector-tagged `CallSubStart` entries.
+
+**What it produces:**
+- Process signatures with sequential numbering
+- Input parameter names, types, and descriptions
+- Return/result type documentation
 - Connector tag identification
-- Sequential numbering and detailed listings
 
-**Use case:** Generate reference documentation for callable sub-processes
+**When to use it:** When process JSON files change and the callable sub reference section needs a refresh.
+
+**Skill file:** [.github/skills/callable-sub-listing/SKILL.md](.github/skills/callable-sub-listing/SKILL.md)
 
 ---
 
-### 3. **callable-sub-summary**
-Provides marketing-oriented summaries of available callable sub-processes and their capabilities.
+### `callable-sub-summary`
 
-**Features:**
-- Feature-focused descriptions
-- Non-technical language suitable for stakeholders
-- Capability highlights
+Produces a marketing-oriented, non-technical summary of the callable sub-processes available in a project.
+
+**What it produces:**
+- Feature highlights in plain language
+- Capability overview suitable for stakeholders
 - Integration guidance
 
-**Use case:** Product overview generation
+**When to use it:** When preparing product marketing copy or a high-level overview section.
+
+**Skill file:** [.github/skills/callable-sub-summary/SKILL.md](.github/skills/callable-sub-summary/SKILL.md)
 
 ---
 
-### 4. **form-components-listing**
-Documents available form components from main Axon Ivy modules.
+### `form-components-listing`
 
-**Features:**
-- DataClass form field extraction
-- UI component discovery
-- Component property documentation
-- Usage examples
+Documents form components and HTML dialog fields from the main Axon Ivy module's `src_hd` directory.
 
-**Use case:** Generate form component reference docs
+**What it produces:**
+- DataClass form field inventory
+- UI component names and properties
+- Usage context for each component
 
----
+**When to use it:** When form dialogs change and the components reference needs updating.
 
-### 5. **maven-artifact-listing**
-Extracts Maven dependencies and generates dependency documentation for Axon Ivy products.
-
-**Features:**
-- Direct dependency extraction
-- Maven XML snippet generation
-- Sequential artifact numbering
-- Artifact metadata documentation
-
-**Use case:** Generate dependency reference for developers
+**Skill file:** [.github/skills/form-components-listing/SKILL.md](.github/skills/form-components-listing/SKILL.md)
 
 ---
 
-## 🚀 Quick Start
+### `maven-artifact-listing`
 
-### Using a Skill via GitHub Copilot
+Parses the `product.json` file and generates clean Maven dependency documentation.
 
-Run a skill using the Copilot CLI:
+**What it produces:**
+- Sequentially numbered artifact list
+- Ready-to-paste Maven `<dependency>` XML snippets
+- Artifact metadata (groupId, artifactId, version)
+
+**When to use it:** When dependencies change or a developer setup guide needs updating.
+
+**Skill file:** [.github/skills/maven-artifact-listing/SKILL.md](.github/skills/maven-artifact-listing/SKILL.md)
+
+---
+
+### `product-image-summary`
+
+Discovers and catalogs all images (screenshots, diagrams, GIFs) in a product module and generates ready-to-use Markdown snippets.
+
+**What it produces:**
+- Images grouped by subdirectory
+- Auto-generated alt-text from filenames
+- Copy-paste Markdown image snippets for README integration
+
+**When to use it:** When images are added or reorganized and you need to update screenshot sections.
+
+**Skill file:** [.github/skills/product-image-summary/SKILL.md](.github/skills/product-image-summary/SKILL.md)
+
+---
+
+### `translate-readme`
+
+Translates an existing `README.md` into German and writes the result to `README_DE.md`.
+
+**What it produces:**
+- Idiomatic German translation using informal `du`/`dein` tone
+- All code blocks, image paths, and URLs preserved verbatim
+- Merged into an existing `README_DE.md` if one is present
+
+**When to use it:** After the English README is finalized or updated.
+
+**Skill file:** [.github/skills/translate-readme/SKILL.md](.github/skills/translate-readme/SKILL.md)
+
+---
+
+## Agents
+
+### `Ivy README Generator`
+
+A VS Code agent mode that orchestrates the full documentation generation workflow end-to-end.
+
+**What it does:**
+1. Reads the `generate-ivy-readme` skill instructions.
+2. Runs all sub-skills in parallel (callable subs, form components, Maven artifacts, images).
+3. Writes or merges `README.md` into the product module.
+4. Writes or merges the German `README_DE.md`.
+
+**How to invoke it in VS Code:**
+
+Open Copilot Chat, switch to **Agent** mode, select **Ivy README Generator**, and type:
+
+```
+Generate readme
+```
+
+or
+
+```
+Update the readme for my Axon Ivy product
+```
+
+**Agent file:** [.github/agents/generate-ivy-readme.agent.md](.github/agents/generate-ivy-readme.agent.md)
+
+---
+
+## Repository Structure
+
+```
+.github/
+├── agents/
+│   └── generate-ivy-readme.agent.md   # VS Code agent mode definition
+├── skills/
+│   ├── callable-sub-listing/
+│   │   ├── SKILL.md
+│   │   ├── references/
+│   │   └── scripts/
+│   ├── callable-sub-summary/
+│   │   └── SKILL.md
+│   ├── form-components-listing/
+│   │   └── SKILL.md
+│   ├── generate-ivy-readme/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   ├── maven-artifact-listing/
+│   │   └── SKILL.md
+│   ├── product-image-summary/
+│   │   ├── SKILL.md
+│   │   └── scripts/
+│   └── translate-readme/
+│       └── SKILL.md
+└── CODEOWNERS
+```
+
+---
+
+## Using Skills in VS Code with GitHub Copilot
+
+Skills under `.github/skills/` are automatically picked up by the GitHub Copilot extension when this repository is open in VS Code. You can also invoke them explicitly in Copilot Chat:
+
+**Generate a full README:**
+
+```
+Use the generate-ivy-readme skill to create a README for my Axon Ivy project
+```
+
+**Refresh callable sub documentation:**
+
+```
+Use callable-sub-listing to regenerate the callable sub section from processes/*.p.json
+```
+
+**Translate to German:**
+
+```
+Use translate-readme to create README_DE.md for my-connector-product
+```
+
+**Catalog product images:**
+
+```
+Use product-image-summary to list all images in my-connector-product
+```
+
+---
+
+## Managing Skills with skillshare
+
+[skillshare](https://github.com/runkids/skillshare) is a single-binary CLI tool that installs skills from any Git host and syncs them to all your AI tools — GitHub Copilot, Claude Code, Cursor, Codex, and 60+ more — from one source of truth.
+
+### Install skillshare
+
+**macOS / Linux:**
 
 ```bash
-copilot -p "Use the /generate-ivy-readme skill to create a README for my Axon Ivy project"
+curl -fsSL https://raw.githubusercontent.com/runkids/skillshare/main/install.sh | sh
 ```
 
-Or invoke a specific skill with parameters:
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/runkids/skillshare/main/install.ps1 | iex
+```
+
+**Homebrew:**
 
 ```bash
-copilot -p "Please use /callable-sub-listing to generate documentation for processes/*.p.json"
+brew install skillshare
 ```
 
-### Skill Location
-
-Each skill is located in `.github/skills/<skill-name>/`:
-
-```
-.github/skills/
-├── callable-sub-listing/
-├── callable-sub-summary/
-├── form-components-listing/
-├── generate-ivy-readme/
-└── maven-artifact-listing/
-```
-
----
-
-## 📖 How Skills Work
-
-Each skill directory contains:
-
-- **SKILL.md** - Skill definition with purpose, inputs, outputs, and behavior
-- **scripts/** - Implementation scripts (JavaScript or shell)
-- **references/** - Format references and templates
-
-### Example Skill Structure
-
-```
-generate-ivy-readme/
-├── SKILL.md                          # Skill documentation
-├── references/
-│   └── output-format.md             # README format reference
-└── scripts/
-    └── generate-readme.js           # Implementation
-```
-
----
-
-## 🔧 Integration
-
-These skills are designed for use with:
-
-- **GitHub Copilot Chat** - Interactive documentation generation
-- **GitHub Actions** - Automated documentation workflows
-- **VS Code** - Local development with Copilot assistance
-
-### Example GitHub Action Workflow
-
-```yaml
-name: Auto-Generate Documentation
-
-on:
-  pull_request:
-    paths:
-      - 'processes/**'
-      - 'src/**'
-
-jobs:
-  generate-docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Generate README
-        run: |
-          copilot -p "Use /generate-ivy-readme to update the README"
-```
-
----
-
-## 📝 Best Practices
-
-1. **Keep modules organized**: Separate main (`pdf-box/`), demo (`pdf-box-demo/`), test, and product modules
-2. **Update documentation regularly**: Re-run skills when code changes
-3. **Review generated content**: Validate and adjust as needed for your use case
-4. **Maintain consistency**: Use the same skills across related projects
-5. **Version skills**: Tag skill versions for reproducible documentation
-
----
-
-## 📋 Supported Project Types
-
-- **Axon Ivy Processes** (`.p.json` files)
-- **Axon Ivy DataClasses** (`.d.json` files)
-- **Axon Ivy HTML Dialogs** (`.xhtml` files)
-- **Axon Ivy Configuration** (`roles.xml`, `rest-clients.yaml`, `variables.yaml`)
-- **Java Services** (SPI implementations, exported classes)
-- **Maven Projects** (`pom.xml` files)
-
----
-
-## 🛠️ Development
-
-### Adding a New Skill
-
-1. Create a directory in `.github/skills/<skill-name>/`
-2. Add `SKILL.md` with skill definition:
-   - Purpose
-   - When to use
-   - Inputs/Outputs
-   - Behavior/Steps
-   - Quality criteria
-3. Create implementation in `scripts/`
-4. Add format references if needed in `references/`
-
-### Running Locally
-
-Skills can be tested locally using the Copilot CLI:
+### Install skills from this repository
 
 ```bash
-copilot -p "Run the /my-skill skill with input: <input>"
+skillshare install github.com/axonivy-market/skillset-for-documentation
 ```
 
+This downloads all skills and agents into your local skillshare source directory:
+
+| Platform | Skills directory |
+|----------|-----------------|
+| macOS / Linux | `~/.config/skillshare/` |
+| Windows | `%AppData%\skillshare\` |
+
+### Configure targets (one-time setup)
+
+Tell skillshare which AI tools you want to sync skills to. Run this once per machine — the configuration is saved and reused for every future `sync` and `update`.
+
+```bash
+skillshare init
+```
+
+`init` auto-detects installed tools (VS Code Copilot, Claude Code, Cursor, Codex, etc.) and adds them as targets. To add or modify a target manually:
+
+```bash
+# Add a specific target
+skillshare target add copilot
+
+# List all configured targets
+skillshare target list
+
+# Switch a target to copy mode if symlinks don't work (e.g. on some Windows setups)
+skillshare target <name> --mode copy
+```
+
+After this step you never need to configure targets again — `sync` and `update` will always use the saved list.
+
+### Sync skills to your AI tools
+
+After installation and target configuration, push the skills to all configured targets:
+
+```bash
+skillshare sync
+```
+
+To sync skills and agents together:
+
+```bash
+skillshare sync --all
+```
+
+### Update to the latest version of the skills
+
+```bash
+skillshare update --all
+```
+
+Or update only this skill set:
+
+```bash
+skillshare update skillset-for-documentation
+```
+
+### Set up on a new machine
+
+```bash
+skillshare init            # detect targets and create config (one-time)
+skillshare install github.com/axonivy-market/skillset-for-documentation
+skillshare sync --all      # push skills + agents to every configured target
+```
+
+### Audit skills before use
+
+```bash
+skillshare audit
+```
+
+Scans installed skills for prompt injection and data exfiltration patterns before they reach your AI agent.
+
+### Web dashboard
+
+```bash
+skillshare ui
+```
+
+Opens a local web dashboard where you can browse, enable/disable, and manage all installed skills visually.
+
+### Upgrade skillshare itself
+
+```bash
+skillshare upgrade
+```
+
+For full documentation see [skillshare.runkids.cc/docs](https://skillshare.runkids.cc/docs).
+
 ---
 
-## 📦 Requirements
+## Contributing
 
-- **GitHub Copilot** access
-- **Node.js 18+** (for JavaScript scripts)
-- **Bash 4+** (for shell scripts)
-- Axon Ivy project structure (for generate-ivy-readme target)
+1. Add a new skill directory under `.github/skills/<skill-name>/`.
+2. Create `SKILL.md` with at minimum: `name`, `description`, purpose, inputs, outputs, and behavior steps.
+3. Add any implementation scripts to `scripts/` and format references to `references/`.
+4. If the skill should be directly invocable by users, set `user-invocable: true` and an `argument-hint` in the SKILL.md frontmatter.
+5. Test the skill against a real Axon Ivy project workspace before submitting a pull request.
+6. Update this README with the new skill entry.
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - [Axon Ivy Market](https://market.axonivy.com/)
 - [Axon Ivy Documentation](https://docs.axonivy.com/)
-- [GitHub Copilot Skills](https://github.com/features/copilot)
+- [GitHub Copilot](https://docs.github.com/en/copilot)
+- [skillshare](https://github.com/runkids/skillshare) — cross-tool skill management CLI
+- [skillshare Docs](https://skillshare.runkids.cc/docs)
 
 ---
 
-## 📄 License
+## License
 
-This repository is part of the Axon Ivy market ecosystem. See LICENSE for details.
-
----
-
-## 🤝 Contributing
-
-To improve these skills:
-
-1. Test changes locally with Copilot CLI
-2. Update SKILL.md with any behavioral changes
-3. Ensure outputs follow the defined format references
-4. Validate with sample Axon Ivy projects
-
----
-
-**Created:** April 2026  
-**Purpose:** Demonstration of GitHub Copilot skills for automated Axon Ivy documentation
+MIT — see [LICENSE](LICENSE) for details.
