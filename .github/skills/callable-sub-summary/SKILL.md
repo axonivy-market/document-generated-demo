@@ -1,6 +1,6 @@
 ---
 name: callable-sub-summary
-description: give me a marketing summary. what features can I expect from these callable subs?
+description: Summarize the capabilities of Axon Ivy callable sub connectors in a marketing-oriented format. Use when asked for a marketing summary, feature overview, or 'what can these callable subs do?'.
 argument-hint: '[optional: path-glob for process files]'
 user-invocable: true
 ---

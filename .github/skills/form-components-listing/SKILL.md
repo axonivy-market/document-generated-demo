@@ -1,6 +1,6 @@
 ---
 name: form-components-listing
-description: give me a detailed summary about available form components from main module(s)?
+description: List and summarize available form dialogs and UI components from the main Axon Ivy module(s). Use when asked for a detailed summary, listing, or overview of form components or form dialogs in the project.
 argument-hint: '[optional: path to main module src_hd directory, e.g. my-connector/src_hd]'
 user-invocable: true
 ---

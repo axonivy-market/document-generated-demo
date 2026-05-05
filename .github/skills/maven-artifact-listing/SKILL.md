@@ -1,6 +1,6 @@
 ---
 name: maven-artifact-listing
-description: Extract maven artifacts from an Axon Ivy product.json file and generate a clean list with sequential numbering and Maven dependency XML snippets.
+description: Extract maven artifacts from an Axon Ivy product.json file and generate a clean list with sequential numbering and Maven dependency XML snippets. Use when asked to list, show, or document Maven artifacts or dependencies from a product.json.
 argument-hint: '<product.json path> [output file]'
 user-invocable: true
 ---

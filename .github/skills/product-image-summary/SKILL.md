@@ -1,6 +1,6 @@
 ---
 name: product-image-summary
-description: Discover and catalog all images (screenshots, diagrams, GIFs) that could be used in readme documentation, generate auto-suggested alt-text, and create markdown snippets ready for readme integration.
+description: Discover and catalog all images (screenshots, diagrams, GIFs) that could be used in readme documentation, generate auto-suggested alt-text, and create markdown snippets ready for readme integration. Use when asked to find, list, or summarize product images or screenshots for documentation.
 argument-hint: '[required: exact project directory name] [optional: output file]'
 user-invocable: true
 ---

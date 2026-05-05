@@ -1,6 +1,6 @@
 ---
 name: callable-sub-listing
-description: Generate docs listings for Axon Ivy CALLABLE_SUB process files and connector-tagged CallSubStart entries, including signature, parameter, and result details. Use when process JSON changes and docs need refresh.
+description: Generate docs listings for Axon Ivy CALLABLE_SUB process files and connector-tagged CallSubStart entries, including signature, parameter, and result details. Use when process JSON changes and docs need refresh, or when asked to list, document, or show callable sub signatures and parameters.
 argument-hint: '[optional: path-glob for process files]'
 user-invocable: true
 ---

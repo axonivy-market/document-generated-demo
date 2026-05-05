@@ -1,6 +1,6 @@
 ---
 name: translate-readme
-description: Translate the product README (title, description, and ### Key features section) into German and write the result to README_DE.md in the product module.
+description: Translate the product README (title, description, and ### Key features section) into German and write the result to README_DE.md in the product module. Use when asked to translate a README to German, create README_DE.md, or produce a German version of product documentation.
 argument-hint: '<product-module-name>'
 user-invocable: true
 ---

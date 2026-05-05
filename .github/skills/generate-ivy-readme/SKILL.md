@@ -1,6 +1,6 @@
 ---
 name: generate-ivy-readme
-description: Generate a product README for an Axon Ivy project.
+description: Generate a product README for an Axon Ivy project. Use when asked to create, generate, or update a README.md or README_DE.md for an Axon Ivy product module.
 ---
 
 Purpose
@@ -94,8 +94,7 @@ treat it as the main module (note in the README that callable subs and form comp
    - Skip silently if no `images/` directory exists in the product module.
    - Image paths from the catalog use the form `<product-module>/images/…`. Strip the leading `<product-module>/` prefix so all paths start with `images/` before using them.
 
-6. Assemble the README from all collected outputs. For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section,
-then insert its markdown snippet (`![alt](images/…)`) immediately after the step/ paragraph/ content it illustrates. Do not create a isolated image section.
+6. Assemble the README following the schema in `output-format.md`. For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section, then insert its markdown snippet (`![alt](images/…)`) immediately after the step/paragraph/content it illustrates. Do not create an isolated image section.
 
 7. Replace `{{variableSection}}` with this exact fenced block (preserve the backticks literally in the output file):
 
@@ -107,10 +106,9 @@ then insert its markdown snippet (`![alt](images/…)`) immediately after the st
 
 Invariants
 ----------
-- Heading order should follow the schema from `output-format.md`. If a section has no content, it is omitted entirely (e.g., if there are no form components, the `### Form components` section is not included at all; if `{{callableSubSection}}` is empty, the `### Exposed CALLABLE_SUB processes` heading is also omitted).
+- Section and heading order must follow `output-format.md` exactly. If any section or sub-section has no content, omit it entirely — including its heading. If all `###` sub-sections under `## Components` are empty, omit `## Components` entirely.
 - Sub-skill output injected verbatim — never reformatted (see Sub-skill protocol).
 - Image paths normalized to `images/…` (relative to product module) before insertion.
 - Merge behavior: additions are applied automatically; deletions require explicit user confirmation. When no confirmation is available, no deletions are performed and proposed-change files (`README.PROPOSED.md` and `README.changes.json`) are produced for review.
 - A translated file (`README_DE.md` by default) must exist after the skill completes.
 - Key features: 3–8 bullets, marketing language, main module only — no technical jargon.
-- If any section has no content (e.g., no form components, no roles, no OpenAPI URLs), that section is omitted entirely from the README.
