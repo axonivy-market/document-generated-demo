@@ -17,7 +17,7 @@ Generate a repeatable documentation listing from process files where:
 - Optional output file path. If omitted, print to stdout
 
 ## Procedure
-1. Ensure `jq` is available.
+Before running, check the current OS. If on Windows, git bash or WSL is recommended to use for best compatibility.
 2. Run the listing script:
    - `bash ./.github/skills/callable-sub-listing/scripts/list-callable-sub-starts.sh`
 3. For docs output, write to a file:

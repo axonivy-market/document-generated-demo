@@ -7,28 +7,22 @@ user-invocable: true
 
 # Product Image Summary
 
-Given the exact project directory name, auto-discover its `images/` subdirectory, group images by folder structure, generate alt-text from filenames, and output ready-to-copy markdown snippets.
+Given the exact product module name, auto-discover its `images/` subdirectory, group images by folder structure, generate alt-text from filenames, and output ready-to-copy markdown snippets.
 
 ## Inputs
 
-- **Required:** Exact project directory name (e.g., `open-weather-connector-product`) — the script looks for `{name}/images/` then falls back to `{name}/`
+- **Required:** Exact product module name (e.g., `open-weather-connector-product`) — the script looks for `{name}/images/` then falls back to `{name}/`
 - **Optional:** Output file path — omit to print to stdout
 
 ## Usage
 
-Use `.ps1` on Windows, `.sh` on Linux/macOS/WSL. Both scripts produce identical output.
-
+Before running, check the current OS. If on Windows, git bash or WSL is recommended to use for best compatibility.
 ```bash
 # Bash (Linux/macOS/WSL)
-bash ./.github/skills/product-image-summary/scripts/catalog-images.sh open-weather-connector-product [output.md]
-
-# PowerShell (Windows)
-powershell -ExecutionPolicy Bypass -File .\.github\skills\product-image-summary\scripts\catalog-images.ps1 -ProjectName open-weather-connector-product
-```
+bash ./.github/skills/product-image-summary/scripts/catalog-images.sh {product module name} docs/product-images.md
 
 ## Output
 
-Images grouped by subdirectory under `images/`. Section headers reflect the folder path (e.g., `demo/dashboard/` → `## Demo / Dashboard`). Each entry includes file path, size, alt-text, and a markdown snippet.
+Images grouped by subdirectory under `images/`. Section headers reflect the folder path (e.g., `demo/dashboard/` → `## Demo / Dashboard`). Each entry includes file path, suggested readme placement, alt-text, and a markdown snippet.
 
 See [references/output-format.md](references/output-format.md) for the full output schema and examples.
-

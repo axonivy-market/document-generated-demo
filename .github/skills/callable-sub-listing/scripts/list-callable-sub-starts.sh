@@ -40,8 +40,6 @@ fi
 
 # Render report to stdout first, then optionally write to file.
 {
-  echo "# Callable Sub Connector Starts"
-  echo
 
   callable_count=0
 
@@ -71,7 +69,7 @@ fi
     # Count only files that contain at least one matching CallSubStart.
     callable_count=$((callable_count + 1))
 
-    echo "## $file"
+    echo "#### $file"
 
     jq -r '
       def has_connector:

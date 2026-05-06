@@ -13,17 +13,15 @@ Generate a concise, marketing-oriented summary of available form dialog and form
 - Optional path to the `src_hd` directory of the main module (e.g. `my-connector/src_hd`). Defaults to scanning the current workspace.
 
 ## Usage
-
-**When invoked as a sub-skill** (e.g. from `generate-ivy-readme`): print to stdout — no file is written. The caller injects stdout verbatim into the target placeholder.
-
-**When run directly from CLI:**
-
+Before running, check the current OS. If on Windows, git bash or WSL is recommended to use for best compatibility.
+### Print to stdout
 ```bash
-# Full scan report to file
-.github/skills/form-components-listing/scripts/form-components-listing.sh {product module}/src_hd --md > .github/skills/form-components-listing/output/ivy-scan.md
+bash ./.github/skills/form-components-listing/scripts/form-components-listing.sh '<src_hd path>'
+```
 
-# Concise dialogs-only summary to stdout
-.github/skills/form-components-listing/scripts/form-components-listing.sh {product module}/src_hd --md --summary
+### Write to file
+```bash
+bash ./.github/skills/form-components-listing/scripts/form-components-listing.sh '<src_hd path>' 'docs/form-components.md'
 ```
 
 The scanner is module-agnostic; pass any `src_hd` directory or top-level UI folder.

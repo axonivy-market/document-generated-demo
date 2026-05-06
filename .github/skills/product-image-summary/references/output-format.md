@@ -5,26 +5,22 @@ The catalog script produces one entry per image. When placing images in the READ
 ## Per-Image Entry Structure
 
 ```markdown
-### [Image Description]
+## Screenshots (1)
 
-- **File:** `relative/path/to/image.png`
-- **Suggested alt-text:** Descriptive text for accessibility
+> Suggested readme placement: `## Screenshots`
 
-> Suggested readme placement: ## Demo — step 2
-
-**Markdown snippet:**
-![Descriptive text for accessibility](relative/path/to/image.png)
+### Login Feature Screenshot
+![Login Feature Screenshot](images/screenshots/login-feature-screenshot.png)
 ```
 
 ## Field Descriptions
 
 | Field | Content |
 |-------|---------|
-| **File** | Relative path from project root |
-| **Size** | Human-readable file size (KB, MB, etc.) |
-| **Dimensions** | Image dimensions in pixels (width×height). Shows "unknown" if ImageMagick not available |
-| **Suggested alt-text** | Auto-generated accessibility text based on filename and category |
-| **Markdown snippet** | Ready-to-copy markdown image syntax for readme integration |
+| Section heading | Folder-derived group name with image count |
+| **Suggested readme placement** | Which README section fits this group best (shown once per section) |
+| Entry heading | Auto-generated alt-text from filename (title-cased) |
+| Markdown snippet | Ready-to-copy `![alt](path)` for direct paste into README |
 
 ## Alt-Text Generation Rules
 
@@ -70,8 +66,8 @@ Filter: all
 ### Login Feature Screenshot
 
 - **File:** `docs/screenshots/login-feature-screenshot.png`
-- **Size:** 87 KB | **Dimensions:** 1024×768px
 - **Suggested alt-text:** Login Feature Screenshot
+- **Suggested readme placement:** `## Screenshots`
 
 **Markdown snippet (ready to copy):**
 \`\`\`markdown

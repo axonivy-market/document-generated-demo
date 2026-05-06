@@ -21,18 +21,6 @@ get_alt_text() {
     echo "$name" | tr '-_' '  ' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)} {print}'
 }
 
-get_file_size() {
-    local bytes
-    bytes=$(wc -c < "$1")
-    if (( bytes >= 1048576 )); then
-        awk "BEGIN { printf \"%.1f MB\", $bytes/1048576 }"
-    elif (( bytes >= 1024 )); then
-        echo "$(( bytes / 1024 )) KB"
-    else
-        echo "${bytes} B"
-    fi
-}
-
 get_section_title() {
     local reldir="$1"
     if [[ -z "$reldir" || "$reldir" == "." ]]; then
@@ -113,15 +101,9 @@ for subdir in "${SUBDIRS[@]}"; do
             (( count++ ))
             filename=$(basename "$f")
             alt=$(get_alt_text "$filename")
-            size=$(get_file_size "$f")
             relpath="${f#./}"
             entries+="### ${alt}\n"
-            entries+="- **File:** \`${relpath}\`\n"
-            entries+="- **Size:** ${size}\n\n"
-            entries+="\`\`\`markdown\n"
-            entries+="![${alt}](${relpath})\n"
-            entries+="\`\`\`\n\n"
-            entries+="---\n\n"
+            entries+="![${alt}](${relpath})\n\n"
         fi
     done
 

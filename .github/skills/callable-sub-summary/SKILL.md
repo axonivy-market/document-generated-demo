@@ -19,6 +19,7 @@ The summary must be grouped by what a workflow team can actually do with the cal
 - Optional prose output file path. Default: stdout
 
 ## Procedure
+Before running, check the current OS. If on Windows, git bash or WSL is recommended to use for best compatibility.
 1. Run the prose summary script (it reuses the JSON extractor internally):
    - bash ./.github/skills/callable-sub-summary/scripts/list-callable-sub-starts-json.sh
 2. For file output, run:

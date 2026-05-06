@@ -35,7 +35,7 @@ Ordering and optional handling:
   Install: `apt install jq` (Linux/WSL) | `brew install jq` (macOS) | `choco install jq` (Windows)
 
 ## Usage
-
+Before running, check the current OS. If on Windows, git bash or WSL is recommended to use for best compatibility.
 ### Print to stdout
 ```bash
 bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path}
@@ -43,7 +43,7 @@ bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh 
 
 ### Write to file
 ```bash
-bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} {output file}
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} docs/maven-artifacts.md
 ```
 
 ## Output Format
