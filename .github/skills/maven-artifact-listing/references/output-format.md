@@ -4,9 +4,9 @@ The maven artifact listing generates a sequential numbered list with artifact de
 
 ## Format Structure
 
-- Sequential numbering: `N.artifactId (installer-type)`
+- Sequential numbering: `N.artifactId` (e.g., `1.docuware-connector`)
 - For each artifact:
-  - Artifact name and installer type (maven-dependency, maven-import, or maven-dropins)
+  - Artifact name (derived from `artifactId`)
   - Raw XML `<dependency>` declaration:
     - `<groupId>` – Maven group ID
     - `<artifactId>` – Maven artifact ID
@@ -15,14 +15,14 @@ The maven artifact listing generates a sequential numbered list with artifact de
 ## Example Output
 
 ```
-1.docuware-connector (maven-dependency)
+1.docuware-connector
 <dependency>
   <groupId>com.axonivy.connector.docuware</groupId>
   <artifactId>docuware-connector</artifactId>
   <type>iar</type>
 </dependency>
 
-2.docuware-connector-demo (maven-import)
+2.docuware-connector-demo
 <dependency>
   <groupId>com.axonivy.connector.docuware</groupId>
   <artifactId>docuware-connector-demo</artifactId>

@@ -343,6 +343,31 @@ skillshare ui
 
 Opens a local web dashboard where you can browse, enable/disable, and manage all installed skills visually.
 
+### Web dashboard walkthrough
+
+The skillshare web dashboard provides an interactive UI to install skills, view installed resources, and check update status.
+
+- **Overview:** Browse and manage all targets, enable/disable skills, and view summaries from the main dashboard.
+
+	![Skillshare dashboard overview](images/skillshare-dashboard.png)
+
+- **Install:** Click "Install" on a skill page to add it to your machine.
+
+	![Install a skill via the dashboard](images/skillshare-install-skill.png)
+
+- **Installed skills:** Open the "Resources" view to see installed resources, versions, and status.
+
+	![Installed skills and resource details](images/skillshare-installed-resource.png)
+
+- **Target locations:** View and manage the locations of your configured targets.
+
+    ![Manage target locations](images/skillshare-set-up-global-target.png)
+
+- **Update status / Auto-tracking:** The dashboard shows whether a skill is auto-tracked and if updates are available; use the "Update" button or enable auto-tracking to keep skills current.
+
+	![Auto-tracking and update status](images/skillshare-auto-tracking-skill.png)
+
+
 ### Upgrade skillshare itself
 
 ```bash

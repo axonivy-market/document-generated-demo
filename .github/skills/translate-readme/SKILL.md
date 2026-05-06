@@ -20,7 +20,7 @@ Produce a German variant of the product introduction that reads naturally to nat
 ## Output
 
 - `README_DE.md` written to `<productModule>/README_DE.md`.
-- Tone: **informal, friendly, and professional** — use `du`/`dein`, short sentences, and avoid jargon.
+- Tone: **natural, friendly, and professional** — use `du`/`dein`, and avoid jargon.
 - Target language: **German**.
 
 ## Behavior / Steps

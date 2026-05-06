@@ -57,7 +57,7 @@ Behavior / Steps
    **4a — Key features & configuration:**
    - Derive 3–8 concise, marketing-oriented Key features bullets from public API, services, and exported classes in `src/`. Main module only — no demo-only artifacts.
    - From `config/roles.xml`: note any roles other than "Everybody" for the `## Setup` section. If "Everybody" is the only role, omit the roles section entirely.
-   - From `config/rest-clients.yaml`: if `OpenAPI.SpecUrl` is an public URL (`http://` or `https://`), insert its markdown snippet (`![Rest Client Name](URL)`) (e.g. `![Petstore](https://petstore.swagger.io/v2/swagger.json)`) in `{{openApiSection}}`. If no public OpenAPI specs are found, mention that there are no public specs available.
+   - From `config/rest-clients.yaml`: if `OpenAPI.SpecUrl` is an public URL (`http://` or `https://`), insert its markdown snippet (`![Rest Client Name](URL)`) (e.g. `![Petstore](https://petstore.swagger.io/v2/swagger.json)`) in `{{openApiSection}}`. If no public OpenAPI specs are found, mention that there are no available public specs delivered.
 
    **4d — Demo workflows:**
       **Tone:** Friendly and professional; write for non-technical stakeholders. Avoid jargon — focus on value, use cases, and how to reproduce the demo.
@@ -85,7 +85,7 @@ Behavior / Steps
    -  For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section, then insert its markdown snippet (`![alt](images/…)`) immediately after the step/paragraph/content it illustrates.
    -  Do not create an isolated image section.
    - The schema of readme should strictly follow the order and structure defined in `output-format.md`. Do not rearrange sections or headings.
-   - If there no relevant content for a section (for example, no OpenAPI specs or no roles), do not omit the section entirely. 
+   - If there no relevant content for a section (for example, no OpenAPI specs or no roles), do not omit the section entirely. Provide the section heading and a single bullet noting the absence of that content (for example, "No callable sub delivered by this extension." or "No public OpenAPI specs are available for this product"). 
    Instead, include the section heading and a single bullet noting the absence of that content (for example, "This product does not require any special roles" or "No public OpenAPI specs are available for this product").
    - All of the extracted content from Apply skill in step 4 must be injected verbatim without reformatting or summarization. Do not rewrite or paraphrase the output from the sub-skills; simply place it in the correct section as-is.
    - Replace `{{variableSection}}` with this exact fenced block (preserve the backticks literally in the output file):
