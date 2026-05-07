@@ -41,20 +41,16 @@ Behavior / Steps
 
 3. Pick the main module: prefer a module that is not `-demo`, `-test`, or `-product`. If the only non-test module is a `-demo` module, treat it as the main module (note in the README that callable subs and form components may carry a demo context).
 
-4. **DISCOVERY PHASE** — dispatch all sub-tasks 4a–4f **in parallel** as independent sub-agents and collect all outputs before assembling. Do not wait for one to finish before starting the next.
-   - **Script-backed** (4b, 4c, 4e, 4f): each runs as a separate sub-agent via `APPLY SKILL`; inject stdout verbatim into the named placeholder (see Sub-skill protocol above).
-   - **AI-inspection** (4a, 4d): each runs as a separate sub-agent that reads source files directly and returns written content — no script, no verbatim injection.
+4. **DISCOVERY PHASE** — execute sub-tasks 4a–4f sequentially and collect all outputs before assembling.
 
    | Step | Input source | Action | Placeholder |
    |------|-------------|--------|-------------|
-   | 4a | Main module `src/`, `config/roles.xml`, `config/rest-clients.yaml` | Sub-agent: Inspect (details below) | Key features, `{{openApiSection}}` |
-   | 4b | Main module `processes/*.p.json` | Sub-agent: APPLY SKILL `callable-sub-listing` | `{{callableSubSection}}` |
-   | 4c | Main module `<main-module>/src_hd` | Sub-agent: APPLY SKILL `form-components-listing` | `{{formComponentSection}}` |
-   | 4d | Demo module(s) processes | Sub-agent: Inspect (details below) | `## Demo` content |
-   | 4e | Product module `product.json` | Sub-agent: APPLY SKILL `maven-artifact-listing` | `{{mavenArtifactSection}}` |
-   | 4f | Product module directory name | Sub-agent: APPLY SKILL `product-image-summary` | Image catalog (used in step 6) |
-
-   > **Parallelism rule:** launch all six sub-agents simultaneously. Assemble the README only after every sub-agent has returned its output.
+   | 4a | Main module `src/`, `config/roles.xml`, `config/rest-clients.yaml` | Inspect (details below) | Key features, `{{openApiSection}}` |
+   | 4b | Main module `processes/*.p.json` | APPLY SKILL `callable-sub-listing` | `{{callableSubSection}}` |
+   | 4c | Main module `<main-module>/src_hd` | APPLY SKILL `form-components-listing` | `{{formComponentSection}}` |
+   | 4d | Demo module(s) processes | Inspect (details below) | `## Demo` content |
+   | 4e | Product module `product.json` | APPLY SKILL `maven-artifact-listing` | `{{mavenArtifactSection}}` |
+   | 4f | Product module directory name | APPLY SKILL `product-image-summary` | Image catalog (used in step 6) |
 
    **4a — Key features & configuration:**
    - Derive 3–8 concise, marketing-oriented Key features bullets from public API, services, and exported classes in `src/`. Main module only — no demo-only artifacts.
