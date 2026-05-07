@@ -22,7 +22,7 @@ Extracts artifacts from all installer types:
 - **maven-dropins** – Dropins array
 
 For each artifact, generates:
-- **Sequential number with artifact name:** installer/internal types are not exposed in the listing
+- **Sequential number with artifact id:** installer/internal types are not exposed in the listing
 - **Raw XML `<dependency>` declaration:** includes `groupId`, `artifactId` and `type` (versions are omitted)
 
 Ordering and optional handling:
@@ -50,10 +50,7 @@ bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh 
 
 See [format reference](./references/output-format.md) for detailed output structure and examples.
 
-## Integration
-
-Use this skill when:
-- Product.json is modified with new artifacts
-- Documentation needs to be refreshed
-- Maven dependencies must be shared with users/integrators
-- Artifact inventory needs to be generated for CI/CD pipelines
+## Quality Criteria
+- No test artifacts are included (artifactIds ending with `test` are silently excluded).
+- If no artifacts are found, output is empty.
+- Installer types are not exposed in the listing.

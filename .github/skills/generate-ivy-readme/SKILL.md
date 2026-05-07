@@ -41,18 +41,20 @@ Behavior / Steps
 
 3. Pick the main module: prefer a module that is not `-demo`, `-test`, or `-product`. If the only non-test module is a `-demo` module, treat it as the main module (note in the README that callable subs and form components may carry a demo context).
 
-4. **DISCOVERY PHASE** — run sub-tasks 4a–4f and collect all outputs before assembling.
-   - **Script-backed** (4b, 4c, 4e, 4f): invoke via `APPLY SKILL`, inject stdout verbatim into the named placeholder (see Sub-skill protocol above).
-   - **AI-inspection** (4a, 4d): read source files directly and write content — no script, no verbatim injection.
+4. **DISCOVERY PHASE** — dispatch all sub-tasks 4a–4f **in parallel** as independent sub-agents and collect all outputs before assembling. Do not wait for one to finish before starting the next.
+   - **Script-backed** (4b, 4c, 4e, 4f): each runs as a separate sub-agent via `APPLY SKILL`; inject stdout verbatim into the named placeholder (see Sub-skill protocol above).
+   - **AI-inspection** (4a, 4d): each runs as a separate sub-agent that reads source files directly and returns written content — no script, no verbatim injection.
 
    | Step | Input source | Action | Placeholder |
    |------|-------------|--------|-------------|
-   | 4a | Main module `src/`, `config/roles.xml`, `config/rest-clients.yaml` | Inspect (details below) | Key features, `{{openApiSection}}` |
-   | 4b | Main module `processes/*.p.json` | APPLY SKILL: `callable-sub-listing` | `{{callableSubSection}}` |
-   | 4c | Main module `<main-module>/src_hd` | APPLY SKILL: `form-components-listing` | `{{formComponentSection}}` |
-   | 4d | Demo module(s) processes | Inspect (details below) | `## Demo` content |
-   | 4e | Product module `product.json` | APPLY SKILL: `maven-artifact-listing` | `{{mavenArtifactSection}}` |
-   | 4f | Product module directory name | APPLY SKILL: `product-image-summary` | Image catalog (used in step 6) |
+   | 4a | Main module `src/`, `config/roles.xml`, `config/rest-clients.yaml` | Sub-agent: Inspect (details below) | Key features, `{{openApiSection}}` |
+   | 4b | Main module `processes/*.p.json` | Sub-agent: APPLY SKILL `callable-sub-listing` | `{{callableSubSection}}` |
+   | 4c | Main module `<main-module>/src_hd` | Sub-agent: APPLY SKILL `form-components-listing` | `{{formComponentSection}}` |
+   | 4d | Demo module(s) processes | Sub-agent: Inspect (details below) | `## Demo` content |
+   | 4e | Product module `product.json` | Sub-agent: APPLY SKILL `maven-artifact-listing` | `{{mavenArtifactSection}}` |
+   | 4f | Product module directory name | Sub-agent: APPLY SKILL `product-image-summary` | Image catalog (used in step 6) |
+
+   > **Parallelism rule:** launch all six sub-agents simultaneously. Assemble the README only after every sub-agent has returned its output.
 
    **4a — Key features & configuration:**
    - Derive 3–8 concise, marketing-oriented Key features bullets from public API, services, and exported classes in `src/`. Main module only — no demo-only artifacts.
@@ -82,12 +84,12 @@ Behavior / Steps
    - Image paths from the catalog use the form `<product-module>/images/…`. Strip the leading `<product-module>/` prefix so all paths start with `images/` before using them.
 
 5. Assemble the README following the schema in `output-format.md`:
+   - All of the extracted content from Apply skill in step 4 must be injected verbatim without reformatting or summarization. Do not rewrite or paraphrase the output from the sub-skills; simply place it in the correct section as-is.
    -  For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section, then insert its markdown snippet (`![alt](images/…)`) immediately after the step/paragraph/content it illustrates.
    -  Do not create an isolated image section.
    - The schema of readme should strictly follow the order and structure defined in `output-format.md`. Do not rearrange sections or headings.
    - If there no relevant content for a section (for example, no OpenAPI specs or no roles), do not omit the section entirely. Provide the section heading and a single bullet noting the absence of that content (for example, "No callable sub delivered by this extension." or "No public OpenAPI specs are available for this product"). 
    Instead, include the section heading and a single bullet noting the absence of that content (for example, "This product does not require any special roles" or "No public OpenAPI specs are available for this product").
-   - All of the extracted content from Apply skill in step 4 must be injected verbatim without reformatting or summarization. Do not rewrite or paraphrase the output from the sub-skills; simply place it in the correct section as-is.
    - Replace `{{variableSection}}` with this exact fenced block (preserve the backticks literally in the output file):
 
 ```
@@ -102,3 +104,4 @@ Invariants
 - Image paths normalized to `images/…` (relative to product module) before insertion.
 - A translated file (`README_DE.md` by default) must exist after the skill completes.
 - Key features: 3–8 bullets, marketing language, main module only — no technical jargon.
+- Order of sections and headings must strictly follow the schema in `output-format.md`.Do not rearrange or omit sections based on content presence; instead, include all sections and note when specific content is absent.

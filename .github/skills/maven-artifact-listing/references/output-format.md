@@ -14,15 +14,17 @@ The maven artifact listing generates a sequential numbered list with artifact de
 
 ## Example Output
 
-```
-1.docuware-connector
+1. docuware-connector
+
+```xml
 <dependency>
   <groupId>com.axonivy.connector.docuware</groupId>
   <artifactId>docuware-connector</artifactId>
   <type>iar</type>
 </dependency>
-
-2.docuware-connector-demo
+```
+2. docuware-connector-demo
+```xml
 <dependency>
   <groupId>com.axonivy.connector.docuware</groupId>
   <artifactId>docuware-connector-demo</artifactId>
