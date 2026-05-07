@@ -173,36 +173,6 @@ Update the readme for my Axon Ivy product
 
 ---
 
-## Repository Structure
-
-```
-.github/
-├── agents/
-│   └── generate-ivy-readme.agent.md   # VS Code agent mode definition
-├── skills/
-│   ├── callable-sub-listing/
-│   │   ├── SKILL.md
-│   │   ├── references/
-│   │   └── scripts/
-│   ├── callable-sub-summary/
-│   │   └── SKILL.md
-│   ├── form-components-listing/
-│   │   └── SKILL.md
-│   ├── generate-ivy-readme/
-│   │   ├── SKILL.md
-│   │   └── references/
-│   ├── maven-artifact-listing/
-│   │   └── SKILL.md
-│   ├── product-image-summary/
-│   │   ├── SKILL.md
-│   │   └── scripts/
-│   └── translate-readme/
-│       └── SKILL.md
-└── CODEOWNERS
-```
-
----
-
 ## Using Skills in VS Code with GitHub Copilot
 
 Skills under `.github/skills/` are automatically picked up by the GitHub Copilot extension when this repository is open in VS Code. You can also invoke them explicitly in Copilot Chat:
