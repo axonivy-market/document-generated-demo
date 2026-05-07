@@ -223,4 +223,4 @@ Initial set up can be found in [SKILLSHARE_GUIDELINE.md](SKILLSHARE_GUIDELINE.md
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE.txt) for details.
