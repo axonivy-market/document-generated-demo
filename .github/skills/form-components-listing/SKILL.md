@@ -1,7 +1,7 @@
 ---
 name: form-components-listing
-description: give me a detailed summary about available form components from main module(s)?
-argument-hint: '[optional: main module name]'
+description: Use when asked for a detailed summary, listing, or overview of form components or form dialogs in the project.
+argument-hint: '[optional: path to main module src_hd directory, e.g. my-connector/src_hd]'
 user-invocable: true
 ---
 
@@ -10,29 +10,21 @@ user-invocable: true
 Generate a concise, marketing-oriented summary of available form dialog and form components from main module(s) in an Axon Ivy project.
 
 ## Inputs
-- Optional path to UI dialog directory of main module(s).
+- Optional path to the `src_hd` directory of the main module (e.g. `my-connector/src_hd`). Defaults to scanning the current workspace.
 
-## Generated report
-----------------
-
-When invoked, this skill runs the scanner script and writes a Markdown report to:
-
-- `.github/skills/form-components-listing/output/ivy-scan.md` (full scan report)
-- `.github/skills/form-components-listing/output/ivy-summary.md` (concise marketing summary)
-
-You can regenerate the reports locally by running the scanner script included in the repository:
-
-```
-.github/skills/form-components-listing/scripts/form-components-listing.sh {product module}/src_hd --md > .github/skills/form-components-listing/output/ivy-scan.md
+## Usage
+Before running, check the current OS. If on Windows, git bash or WSL is recommended to use for best compatibility.
+### Print to stdout
+```bash
+bash ./.github/skills/form-components-listing/scripts/form-components-listing.sh '<src_hd path>'
 ```
 
-To produce the concise dialogs-only summary and print it to stdout, run the scanner with the `--summary` flag (no separate helper required):
-
+### Write to file
+```bash
+bash ./.github/skills/form-components-listing/scripts/form-components-listing.sh '<src_hd path>' 'docs/form-components.md'
 ```
-.github/skills/form-components-listing/scripts/form-components-listing.sh {product module} --md --summary
-```
 
-The generated reports can be saved under `.github/skills/form-components-listing/output/` if desired. The scanner and summary options are module-agnostic; callers may pass any module or top-level UI folder.
+The scanner is module-agnostic; pass any `src_hd` directory or top-level UI folder.
 
 ## Output
 - The skill returns a concise dialogs-only markdown summary. The exact output schema is defined in the reference file:

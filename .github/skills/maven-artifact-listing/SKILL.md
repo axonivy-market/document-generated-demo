@@ -1,7 +1,7 @@
 ---
 name: maven-artifact-listing
 description: Extract maven artifacts from an Axon Ivy product.json file and generate a clean list with sequential numbering and Maven dependency XML snippets.
-argument-hint: 'path to product.json file'
+argument-hint: '<product.json path> [output file]'
 user-invocable: true
 ---
 
@@ -12,7 +12,6 @@ Generate a clean Maven artifact listing from Axon Ivy product.json files with se
 ## Inputs
 
 - **Required:** Path to `product.json` file (e.g., `docuware-connector-product/product.json`)
-- **Optional:** Path to `pom.xml` file to extract version. If version is snapshot (e.g., `1.0.0-SNAPSHOT`), it is converted to release version (`1.0.0`)
 - **Optional:** Output file path. If omitted, output prints to stdout
 
 ## Features
@@ -23,38 +22,35 @@ Extracts artifacts from all installer types:
 - **maven-dropins** – Dropins array
 
 For each artifact, generates:
-- Sequential number with artifact name and installer type
-- Raw XML `<dependency>` declaration with groupId, artifactId, version, and type
+- **Sequential number with artifact id:** installer/internal types are not exposed in the listing
+- **Raw XML `<dependency>` declaration:** includes `groupId`, `artifactId` and `type` (versions are omitted)
+
+Ordering and optional handling:
+- `maven-dependency` artifacts are listed first.
+- `maven-import` artifacts follow; projects with `importInWorkspace=false` are treated as optional and are listed after strictly imported projects.
 
 ## Prerequisites
 
-- `jq` command-line JSON processor (install via `apt install jq` on Linux/WSL, `brew install jq` on macOS, or `choco install jq` on Windows)
+- `jq` must be installed. The script exits with a clear error if it is not found.
+  Install: `apt install jq` (Linux/WSL) | `brew install jq` (macOS) | `choco install jq` (Windows)
 
 ## Usage
-
-### Print to stdout (without version extraction)
+Before running, check the current OS. If on Windows, git bash or WSL is recommended to use for best compatibility.
+### Print to stdout
 ```bash
 bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path}
 ```
 
-### Extract version from pom.xml and print to stdout
+### Write to file
 ```bash
-bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} pom.xml
-```
-
-### Write to file and extract version from pom.xml
-```bash
-bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} pom.xml {output file}
+bash ./.github/skills/maven-artifact-listing/scripts/extract-maven-artifacts.sh {product json path} docs/maven-artifacts.md
 ```
 
 ## Output Format
 
 See [format reference](./references/output-format.md) for detailed output structure and examples.
 
-## Integration
-
-Use this skill when:
-- Product.json is modified with new artifacts
-- Documentation needs to be refreshed
-- Maven dependencies must be shared with users/integrators
-- Artifact inventory needs to be generated for CI/CD pipelines
+## Quality Criteria
+- No test artifacts are included (artifactIds ending with `test` are silently excluded).
+- If no artifacts are found, output is empty.
+- Installer types are not exposed in the listing.

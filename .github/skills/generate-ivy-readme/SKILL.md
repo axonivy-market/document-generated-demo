@@ -1,69 +1,103 @@
 ---
 name: generate-ivy-readme
-description: Generate a product README for an Axon Ivy project.
+description: Generate a product README for an Axon Ivy project. Use when asked to create, generate, or update a README.md or README_DE.md for an Axon Ivy product module.
 ---
 
 Purpose
 -------
-Create a well-structured, detailed README for an Axon Ivy product that follows the standard schema with these top-level sections in order from [format reference](./references/output-format.md).
-The README should be accessible to non-technical stakeholders while also providing technical details for developers.
-The content should be derived from the main module and demo module(s) of the project, with a clear separation between product features and demo-only assets.
-
-When to use
------------
-- Use in Axon Ivy repos that include a multi-module `pom.xml` at the repository root.
-- Use when you want a consistent product README that is friendly for non-technical stakeholders and detailed enough for Axon Ivy developers.
+Create a well-structured README for an Axon Ivy product following the schema in [format reference](./references/output-format.md).
+Content is derived from the main module(s) and demo module(s). The tone is friendly and professional, suitable for both technical and non-technical stakeholders.
 
 Inputs
 ------
 - `workspacePath` (optional): path to repository root. Default: current workspace.
-- `pomPath` (optional): path to root `pom.xml` to scan and extract version for maven-artifact-listing.
 - `module` (optional): explicit module name to treat as the main module.
+
+Configuration defaults
+----------------------
+- `keyFeatureRange`: 3–8 bullets
+- `excludeSuffixes`: `test` or `webtest`
+
+Sub-skill protocol
+------------------
+For every **APPLY SKILL: `<name>`** instruction in the steps below:
+1. Call the specified skill with the given arguments.
+2. Inject the stdout output **verbatim** at the named `{{placeholder}}` — do not reformat, summarize, or paraphrase.
 
 Output
 ------
-- A README markdown string that follows the Axon Ivy product README schema with these top-level sections in order from [format reference](./references/output-format.md)
-- The skill should write `README.md` to the product module when executed in-place. If the runner only returns a markdown string, the caller should save it to `README.md`.
-
-Restrictions
-------------
-- All of the result content from subskills (callable-sub-summary, form-components-summary, maven-artifact-listing) must be directly injected into the corresponding sections of the README without manual reformatting or summarization. This ensures traceability and correctness of the generated content.
+- **If `README.md` does not exist** in the product module: generate a full README and write it there.
+- **If `README.md` already exists**: replace all of section content if its outdated, but preserve the original wording as much as possible.
 
 Behavior / Steps
 ----------------
 1. Read the root `pom.xml`. If it declares `<modules>`, enumerate them.
+
 2. Classify each module by its artifactId or folder name suffix:
-   - `-demo` → demo module(s) (its context only be used in Demo section)
-   - `-test` → test modules (exclude from README)
-   - `-product` → product module (target location for README / images)
+   - `-demo` → demo module(s) — context used in `## Demo` only
+   - `test` → exclude from README
+   - `-product` → product module (target location for `README.md` and images)
    - others → candidate main module(s)
-3. Pick the main module: prefer a module that is not `-demo`, `-test` or `-product`. If none found, the main module is the demo.
-4. Inspect the main module, looking for (these are the authoritative sources for the README's "Key features"):
-   - Public API, exported services, SPI implementations and notable classes in `src/`.
-   - Derive the "Key features" list (3–8 concise bullets) only from this main module — do not include demo-only artifacts here.
-   - **CALL SUBAGENT: callable-sub-listing** — Pass the main module's process files (processes/*.p.json). **Directly inject the output of this subagent into the `## Components` section using a placeholder of `{{callableSubSection}}`. Do not reformat or summarize; use the subagent's output verbatim.**
-   - **CALL SUBAGENT: form-components-summary** — Pass the main module path. **Directly inject the output of this subagent into the `## Components` section using a placeholder such as `{{formComponentSection}}`. Do not reformat or summarize; use the subagent's output verbatim.**
-   - Mandatory configuration definitions in `config/`:
-       - Existing role from `roles.xml` (do not include default "Everyone" role) which could be mentioned in the component section of the README.
-       - Rest client name and existing open api spec section from `rest-clients.yaml` which will be used for `{{openApiSection}}` in the Components section.
-5. Inspect demo module(s) for user flows (step lists) and demo-only assets:
-   - Find process definitions and any CMS or webContent pages used by the demo.
-   - Translate sequence of demo processes into a step-by-step user workflow for the `## Demo` section.
-   - Include sample docker setup or provided example deployments only in the `## Demo` section (do not list them as Key features).
-6. Inspect product module for Maven artifacts:
-   - **CALL SUBAGENT: maven-artifact-listing** — Pass the product module's `product.json` path and the root `pom.xml` path. The `maven-artifact-listing` subskill returns a list of artifacts with Maven dependency declarations. Insert the returned content verbatim at the `{{mavenArtifactSection}}` placeholder. Do not add additional formatting or change punctuation — inject the subskill output unchanged.
-7. The placeholder `{{variableSection}}` must be replaced with the exact fenced code block shown below (include the three backticks on their own lines). Ensure the code fence is preserved in the generated `README.md` output; emit the literal backtick characters and escape them if your templating engine would otherwise interpret or remove them.
+
+3. Pick the main module: prefer a module that is not `-demo`, `-test`, or `-product`. If the only non-test module is a `-demo` module, treat it as the main module (note in the README that callable subs and form components may carry a demo context).
+
+4. **DISCOVERY PHASE** — execute sub-tasks 4a–4f sequentially and collect all outputs before assembling.
+
+   | Step | Input source | Action | Placeholder |
+   |------|-------------|--------|-------------|
+   | 4a | Main module `src/`, `config/roles.xml`, `config/rest-clients.yaml` | Inspect (details below) | Key features, `{{openApiSection}}` |
+   | 4b | Main module `processes/*.p.json` | APPLY SKILL `callable-sub-listing` | `{{callableSubSection}}` |
+   | 4c | Main module `<main-module>/src_hd` | APPLY SKILL `form-components-listing` | `{{formComponentSection}}` |
+   | 4d | Demo module(s) processes | Inspect (details below) | `## Demo` content |
+   | 4e | Product module `product.json` | APPLY SKILL `maven-artifact-listing` | `{{mavenArtifactSection}}` |
+   | 4f | Product module directory name | APPLY SKILL `product-image-summary` | Image catalog (used in step 6) |
+
+   **4a — Key features & configuration:**
+   - Derive 3–8 concise, marketing-oriented Key features bullets from public API, services, and exported classes in `src/`. Main module only — no demo-only artifacts.
+   - From `config/roles.xml`: note any roles other than "Everybody" for the `## Setup` section. If "Everybody" is the only role, omit the roles section entirely.
+   - From `config/rest-clients.yaml`: if `OpenAPI.SpecUrl` is an public URL (`http://` or `https://`), insert its markdown snippet (`![Rest Client Name](URL)`) (e.g. `![Petstore](https://petstore.swagger.io/v2/swagger.json)`) in `{{openApiSection}}`. If no public OpenAPI specs are found, mention that there are no available public specs delivered.
+
+   **4d — Demo workflows:**
+      **Tone:** Friendly and professional; write for non-technical stakeholders. Avoid jargon — focus on value, use cases, and how to reproduce the demo.
+
+      **Writing each workflow:**
+      Translate each demo process into separated step-by-step guideline. Adapt the number of steps freely to fit the actual workflow. Each step must focus on the user action or observable outcome — not internal technical details. Cover:
+      - How to launch the process (use the friendly name from the `RequestStart` element, not the internal file name).
+      - What the user sees at each stage (general view of dialogs, forms, displayed information).
+      - What the user can do at each stage (fill in fields, trigger actions, view results).
+      
+      If a Docker image or example deployment is available, mention it in the last step.
+      > Docker/example deployments belong in `## Demo` only — never in Key features.
+
+      **Merging with an existing `## Demo` section:**
+      When a `## Demo` section already exists, compare it against the freshly analyzed demo processes and apply:
+      - **Add** a new workflow for any `RequestStart` process present in the demo module but not yet documented.
+      - **Remove** any workflow for a process no longer found in the demo module (deleted or renamed).
+      - **Update** any workflow whose description no longer matches the current process flow; preserve accurate wording and rewrite only what has changed.
+
+   **4f — Image catalog:**
+   - Skip silently if no `images/` directory exists in the product module.
+   - Image paths from the catalog use the form `<product-module>/images/…`. Strip the leading `<product-module>/` prefix so all paths start with `images/` before using them.
+
+5. Assemble the README following the schema in `output-format.md`:
+   - All of the extracted content from Apply skill in step 4 must be injected verbatim without reformatting or summarization. Do not rewrite or paraphrase the output from the sub-skills; simply place it in the correct section as-is.
+   -  For each image from `product-image-summary`: use its `> Suggested readme placement` hint to place it in the correct section, then insert its markdown snippet (`![alt](images/…)`) immediately after the step/paragraph/content it illustrates.
+   -  Do not create an isolated image section.
+   - The schema of readme should strictly follow the order and structure defined in `output-format.md`. Do not rearrange sections or headings.
+   - If there no relevant content for a section (for example, no OpenAPI specs or no roles), do not omit the section entirely. Provide the section heading and a single bullet noting the absence of that content (for example, "No callable sub delivered by this extension." or "No public OpenAPI specs are available for this product"). 
+   Instead, include the section heading and a single bullet noting the absence of that content (for example, "This product does not require any special roles" or "No public OpenAPI specs are available for this product").
+   - Replace `{{variableSection}}` with this exact fenced block (preserve the backticks literally in the output file):
 
 ```
 @variables.yaml@
 ```
 
-Implementation note: when your generator constructs the README string, it must include the three backtick characters as part of the output. If your templating or serialization step strips or normalizes markdown fences, output the backticks as literal characters (for example: output the string "```" directly) so the final README contains the fenced block exactly as shown above.
+7. **APPLY SKILL: `translate-readme`** — pass `productModule` set to the product module folder name.
 
-Quality criteria / Acceptance checks
-----------------------------------
-- README contains the headings in this order: product name, `### Key features`, `## Demo`, `## Setup`, `## Components`.
-- Language: simple, non-technical summary first; technical details in Setup and Components sections.
-- Key features: 3–8 concise bullet points derived from the main module only. The writing style should be accessible to non-technical stakeholders and marketing-oriented. It should avoid technical jargon and focus on the value proposition and capabilities of the product.
-- Demo: one or more concrete user workflows (step lists) derived from demo processes.
-- Before returning the final README, ensure that the outputs from the sibling skills - callable-sub-summary, form-components-summary, and maven-artifact-listing - are directly injected into the corresponding placeholders of the README without any manual reformatting or summarization. This is crucial for maintaining the accuracy and traceability of the generated content.
+Invariants
+----------
+- Section and heading order must follow `output-format.md` exactly.
+- Image paths normalized to `images/…` (relative to product module) before insertion.
+- A translated file (`README_DE.md` by default) must exist after the skill completes.
+- Key features: 3–8 bullets, marketing language, main module only — no technical jargon.
+- Order of sections and headings must strictly follow the schema in `output-format.md`.Do not rearrange or omit sections based on content presence; instead, include all sections and note when specific content is absent.
